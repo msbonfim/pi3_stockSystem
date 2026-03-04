@@ -1,0 +1,39 @@
+# =========================
+# ESSENCIAIS DO BACKEND (Django)
+# =========================
+# Não subir o ambiente virtual (ele é gigante e recriado facilmente)
+backend/venv/
+venv/
+
+# Não subir o banco de dados local (para não apagar os dados de quem baixar o projeto)
+db.sqlite3
+*.sqlite3
+
+# Arquivos temporários e de cache do Python
+__pycache__/
+*.py[cod]
+
+# =========================
+# ESSENCIAIS DO FRONTEND (Vite/Node)
+# =========================
+# Não subir as bibliotecas (o npm install baixa tudo de novo bem mais rápido)
+frontend/node_modules/
+node_modules/
+
+# Pastas de build geradas automaticamente
+frontend/dist/
+frontend/build/
+
+# =========================
+# SEGURANÇA (Obrigatório)
+# =========================
+# NUNCA subir chaves privadas, senhas ou arquivos de configuração de ambiente local
+.env
+.env.local
+*.env
+
+# =========================
+# SISTEMA OPERACIONAL
+# =========================
+.DS_Store
+Thumbs.db

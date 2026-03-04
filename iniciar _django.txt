@@ -1,0 +1,23 @@
+.\venv\Scripts\Activate
+
+python manage.py runserver
+
+Verificando qual conta do GitHub está vinculada ao repositório:
+git remote -v
+
+
+# Verificar o status das alterações
+git status
+
+# Adicionar todos os arquivos modificados
+git add .
+
+# Fazer commit com uma mensagem descritiva
+git commit -m "Preparar backend para deploy no Render.com - Remover admin_interface, atualizar settings_production, adicionar render.yaml e build.sh"
+
+# Fazer push para o GitHub
+git push origin main
+
+
+
+gunicorn sistema_gestao.wsgi:application --bind 0.0.0.0:$PORT
