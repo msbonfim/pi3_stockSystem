@@ -1,0 +1,6 @@
+.\venv\Scripts\Activate
+
+C:\Users\Administrador\Desktop\pi2_sistema_versao3\
+python iniciar_servicos.py
+
+python manage.py runserver

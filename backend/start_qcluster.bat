@@ -1,0 +1,6 @@
+@echo off
+cd /d C:\Users\Administrador\Desktop\pi2_sistema_versao3\backend
+echo Ativando ambiente virtual...
+call .\venv\Scripts\activate
+echo Iniciando QCluster...
+python manage.py qcluster

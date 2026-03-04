@@ -1,0 +1,775 @@
+/* Accessibility Styles for Django Admin */
+
+/* Base Accessibility Styles */
+.admin-accessibility-enabled {
+  /* Focus visible improvements */
+  --focus-outline: 3px solid #2563eb;
+  --focus-outline-offset: 2px;
+}
+
+.admin-accessibility-enabled *:focus {
+  outline: var(--focus-outline) !important;
+  outline-offset: var(--focus-outline-offset) !important;
+}
+
+.admin-accessibility-enabled th, 
+.admin-accessibility-enabled td {
+  padding: 0.3rem !important;
+  border: 2px solid #cccccc !important;
+}
+
+/* Font Size Adjustments - FORÇADO com !important e máxima especificidade */
+body.admin-accessibility-large,
+html body.admin-accessibility-large,
+html body.admin-accessibility-large #content,
+html body.admin-accessibility-large #content-main,
+body.admin-accessibility-large #header,
+body.admin-accessibility-large #header * {
+  font-size: 1.125rem !important;
+}
+
+body.admin-accessibility-large *,
+body.admin-accessibility-large p,
+body.admin-accessibility-large span,
+body.admin-accessibility-large a,
+body.admin-accessibility-large li,
+body.admin-accessibility-large td,
+body.admin-accessibility-large th,
+body.admin-accessibility-large label,
+body.admin-accessibility-large input,
+body.admin-accessibility-large select,
+body.admin-accessibility-large textarea,
+body.admin-accessibility-large div,
+body.admin-accessibility-large h1,
+body.admin-accessibility-large h2,
+body.admin-accessibility-large h3 {
+  font-size: 1.125rem !important;
+}
+
+body.admin-accessibility-large .module,
+body.admin-accessibility-large .module *,
+body.admin-accessibility-large #result_list,
+body.admin-accessibility-large #result_list *,
+body.admin-accessibility-large .form-row,
+body.admin-accessibility-large .form-row *,
+body.admin-accessibility-large h2,
+body.admin-accessibility-large h3,
+body.admin-accessibility-large .button,
+body.admin-accessibility-large input[type="submit"],
+body.admin-accessibility-large .addlink,
+body.admin-accessibility-large .changelink,
+body.admin-accessibility-large #user-tools,
+body.admin-accessibility-large #user-tools * {
+  font-size: 1.125rem !important;
+}
+
+body.admin-accessibility-xlarge,
+html body.admin-accessibility-xlarge,
+html body.admin-accessibility-xlarge #content,
+html body.admin-accessibility-xlarge #content-main,
+body.admin-accessibility-xlarge #header,
+body.admin-accessibility-xlarge #header * {
+  font-size: 1.25rem !important;
+}
+
+body.admin-accessibility-xlarge *,
+body.admin-accessibility-xlarge p,
+body.admin-accessibility-xlarge span,
+body.admin-accessibility-xlarge a,
+body.admin-accessibility-xlarge li,
+body.admin-accessibility-xlarge td,
+body.admin-accessibility-xlarge th,
+body.admin-accessibility-xlarge label,
+body.admin-accessibility-xlarge input,
+body.admin-accessibility-xlarge select,
+body.admin-accessibility-xlarge textarea,
+body.admin-accessibility-xlarge div,
+body.admin-accessibility-xlarge h1,
+body.admin-accessibility-xlarge h2,
+body.admin-accessibility-xlarge h3 {
+  font-size: 1.25rem !important;
+}
+
+body.admin-accessibility-xlarge .module,
+body.admin-accessibility-xlarge .module *,
+body.admin-accessibility-xlarge #result_list,
+body.admin-accessibility-xlarge #result_list *,
+body.admin-accessibility-xlarge .form-row,
+body.admin-accessibility-xlarge .form-row *,
+body.admin-accessibility-xlarge h2,
+body.admin-accessibility-xlarge h3,
+body.admin-accessibility-xlarge .button,
+body.admin-accessibility-xlarge input[type="submit"],
+body.admin-accessibility-xlarge .addlink,
+body.admin-accessibility-xlarge .changelink,
+body.admin-accessibility-xlarge #user-tools,
+body.admin-accessibility-xlarge #user-tools * {
+  font-size: 1.25rem !important;
+}
+
+body.admin-accessibility-xxlarge,
+html body.admin-accessibility-xxlarge,
+html body.admin-accessibility-xxlarge #content,
+html body.admin-accessibility-xxlarge #content-main,
+body.admin-accessibility-xxlarge #header,
+body.admin-accessibility-xxlarge #header * {
+  font-size: 1.5rem !important;
+}
+
+body.admin-accessibility-xxlarge *,
+body.admin-accessibility-xxlarge p,
+body.admin-accessibility-xxlarge span,
+body.admin-accessibility-xxlarge a,
+body.admin-accessibility-xxlarge li,
+body.admin-accessibility-xxlarge td,
+body.admin-accessibility-xxlarge th,
+body.admin-accessibility-xxlarge label,
+body.admin-accessibility-xxlarge input,
+body.admin-accessibility-xxlarge select,
+body.admin-accessibility-xxlarge textarea,
+body.admin-accessibility-xxlarge div,
+body.admin-accessibility-xxlarge h1,
+body.admin-accessibility-xxlarge h2,
+body.admin-accessibility-xxlarge h3 {
+  font-size: 1.5rem !important;
+}
+
+body.admin-accessibility-xxlarge .module,
+body.admin-accessibility-xxlarge .module *,
+body.admin-accessibility-xxlarge #result_list,
+body.admin-accessibility-xxlarge #result_list *,
+body.admin-accessibility-xxlarge .form-row,
+body.admin-accessibility-xxlarge .form-row *,
+body.admin-accessibility-xxlarge h2,
+body.admin-accessibility-xxlarge h3,
+body.admin-accessibility-xxlarge .button,
+body.admin-accessibility-xxlarge input[type="submit"],
+body.admin-accessibility-xxlarge .addlink,
+body.admin-accessibility-xxlarge .changelink,
+body.admin-accessibility-xxlarge #user-tools,
+body.admin-accessibility-xxlarge #user-tools *,
+body.admin-accessibility-xxlarge table,
+body.admin-accessibility-xxlarge table *,
+body.admin-accessibility-xxlarge ul,
+body.admin-accessibility-xxlarge ul *,
+body.admin-accessibility-xxlarge ol,
+body.admin-accessibility-xxlarge ol * {
+  font-size: 1.5rem !important;
+}
+
+/* Dark Theme */
+body.admin-accessibility-dark-theme,
+html body.admin-accessibility-dark-theme {
+  background: #1a1a1a !important;
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme #header,
+html body.admin-accessibility-dark-theme #header {
+  background: linear-gradient(135deg, #2d2d2d 0%, #1a1a1a 100%) !important;
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme #header *,
+html body.admin-accessibility-dark-theme #header * {
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme #header #site-name a,
+html body.admin-accessibility-dark-theme #header #site-name a {
+  color: #ffffff !important;
+}
+
+body.admin-accessibility-dark-theme .module,
+html body.admin-accessibility-dark-theme .module {
+  background: #2d2d2d !important;
+  color: #e0e0e0 !important;
+  border-color: #404040 !important;
+}
+
+body.admin-accessibility-dark-theme .module *,
+html body.admin-accessibility-dark-theme .module * {
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme .module h2,
+html body.admin-accessibility-dark-theme .module h2 {
+  background: linear-gradient(135deg, #404040 0%, #2d2d2d 100%) !important;
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme #content-main,
+html body.admin-accessibility-dark-theme #content-main {
+  background: #1a1a1a !important;
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme #content-main *,
+html body.admin-accessibility-dark-theme #content-main * {
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme #result_list,
+html body.admin-accessibility-dark-theme #result_list {
+  background: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme #result_list *,
+html body.admin-accessibility-dark-theme #result_list * {
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme #result_list th,
+html body.admin-accessibility-dark-theme #result_list th {
+  background: #404040 !important;
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme #result_list td,
+html body.admin-accessibility-dark-theme #result_list td {
+  background: #2d2d2d !important;
+  color: #e0e0e0 !important;
+  border-color: #404040 !important;
+}
+
+body.admin-accessibility-dark-theme a,
+html body.admin-accessibility-dark-theme a {
+  color: #64b5f6 !important;
+}
+
+body.admin-accessibility-dark-theme a:hover,
+html body.admin-accessibility-dark-theme a:hover {
+  color: #90caf9 !important;
+}
+
+body.admin-accessibility-dark-theme .button,
+body.admin-accessibility-dark-theme input[type="submit"],
+html body.admin-accessibility-dark-theme .button,
+html body.admin-accessibility-dark-theme input[type="submit"] {
+  background: #1976d2 !important;
+  color: #ffffff !important;
+}
+
+body.admin-accessibility-dark-theme .button:hover,
+body.admin-accessibility-dark-theme input[type="submit"]:hover,
+html body.admin-accessibility-dark-theme .button:hover,
+html body.admin-accessibility-dark-theme input[type="submit"]:hover {
+  background: #1565c0 !important;
+}
+
+body.admin-accessibility-dark-theme table,
+html body.admin-accessibility-dark-theme table {
+  background: #2d2d2d !important;
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme table *,
+html body.admin-accessibility-dark-theme table * {
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme form,
+html body.admin-accessibility-dark-theme form {
+  background: transparent !important;
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme form *,
+html body.admin-accessibility-dark-theme form * {
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme label,
+html body.admin-accessibility-dark-theme label {
+  color: #e0e0e0 !important;
+}
+
+body.admin-accessibility-dark-theme input,
+body.admin-accessibility-dark-theme select,
+body.admin-accessibility-dark-theme textarea,
+html body.admin-accessibility-dark-theme input,
+html body.admin-accessibility-dark-theme select,
+html body.admin-accessibility-dark-theme textarea {
+  background: #404040 !important;
+  color: #e0e0e0 !important;
+  border-color: #606060 !important;
+}
+
+/* High Contrast Mode */
+.admin-accessibility-high-contrast {
+  --admin-bg: #000000;
+  --admin-surface: #ffffff;
+  --admin-text: #000000;
+  --admin-text-light: #000000;
+  --admin-border: #000000;
+  --admin-primary: #0000ff;
+  --admin-primary-dark: #000080;
+}
+
+.admin-accessibility-high-contrast body {
+  background: var(--admin-surface) !important;
+  color: var(--admin-text) !important;
+}
+
+.admin-accessibility-high-contrast .module {
+  background: var(--admin-surface) !important;
+  border: 3px solid var(--admin-border) !important;
+  color: var(--admin-text) !important;
+}
+
+.admin-accessibility-high-contrast .module h2 {
+  background: var(--admin-surface) !important;
+  color: var(--admin-text) !important;
+  border-bottom: 3px solid var(--admin-border) !important;
+}
+
+.admin-accessibility-high-contrast a {
+  color: var(--admin-primary) !important;
+  text-decoration: underline !important;
+}
+
+.admin-accessibility-high-contrast .button,
+.admin-accessibility-high-contrast input[type="submit"] {
+  background: var(--admin-primary) !important;
+  color: var(--admin-surface) !important;
+  border: 3px solid var(--admin-border) !important;
+  font-weight: 700 !important;
+}
+
+/* Large Buttons */
+.admin-accessibility-large-buttons .button,
+.admin-accessibility-large-buttons input[type="submit"],
+.admin-accessibility-large-buttons input[type="button"],
+.admin-accessibility-large-buttons a.button {
+  padding: 1rem 2rem !important;
+  min-height: 48px !important;
+  min-width: 120px !important;
+  font-size: 1.125rem !important;
+  font-weight: 600 !important;
+}
+
+.admin-accessibility-large-buttons .submit-row input {
+  padding: 1rem 2rem !important;
+  min-height: 48px !important;
+}
+
+/* Simplified View */
+.admin-accessibility-simplified .module {
+  border: 2px solid var(--admin-border) !important;
+  box-shadow: none !important;
+}
+
+.admin-accessibility-simplified .module h2 {
+  background: var(--admin-bg) !important;
+  border-bottom: 2px solid var(--admin-border) !important;
+}
+
+.admin-accessibility-simplified #result_list {
+  border: 2px solid var(--admin-border) !important;
+}
+
+.admin-accessibility-simplified #result_list thead th {
+  background: var(--admin-bg) !important;
+  border-bottom: 2px solid var(--admin-border) !important;
+}
+
+/* Accessibility Panel Styles - FORÇADO */
+#accessibility-toggle {
+  position: fixed !important;
+  bottom: 20px !important;
+  right: 20px !important;
+  width: 60px !important;
+  height: 60px !important;
+  background: linear-gradient(135deg, #2563eb 0%, #1e40af 100%) !important;
+  color: #ffffff !important;
+  border: none !important;
+  border-radius: 50% !important;
+  font-size: 24px !important;
+  cursor: pointer !important;
+  box-shadow: 0 4px 12px rgba(37, 99, 235, 0.4) !important;
+  z-index: 9998 !important;
+  transition: all 0.3s !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+}
+
+#accessibility-toggle:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 6px 20px rgba(37, 99, 235, 0.5) !important;
+}
+
+/* Base styles - sempre aplicados */
+#accessibility-panel {
+  position: fixed !important;
+  bottom: 90px !important;
+  right: 20px !important;
+  z-index: 9999 !important;
+  background: #ffffff !important;
+  border: 1px solid #e2e8f0 !important;
+  border-radius: 8px !important;
+  padding: 0 !important;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06) !important;
+  max-width: 420px !important;
+  max-height: 85vh !important;
+  overflow: hidden !important;
+  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif !important;
+  flex-direction: column !important;
+  transition: all 0.2s ease !important;
+  /* Manter tamanho de fonte fixo no painel - não afetado pelas configurações de acessibilidade */
+  font-size: 16px !important;
+  /* Estado padrão (fechado) - NÃO usa !important para permitir sobrescrita */
+  display: none;
+  opacity: 0;
+  transform: translateY(10px) scale(0.95);
+  visibility: hidden;
+}
+
+/* Forçar tamanho de fonte fixo para todos os elementos dentro do painel - não afetado pelas configurações de acessibilidade */
+body.admin-accessibility-large #accessibility-panel,
+body.admin-accessibility-large #accessibility-panel *,
+body.admin-accessibility-xlarge #accessibility-panel,
+body.admin-accessibility-xlarge #accessibility-panel *,
+body.admin-accessibility-xxlarge #accessibility-panel,
+body.admin-accessibility-xxlarge #accessibility-panel *,
+html body.admin-accessibility-large #accessibility-panel,
+html body.admin-accessibility-large #accessibility-panel *,
+html body.admin-accessibility-xlarge #accessibility-panel,
+html body.admin-accessibility-xlarge #accessibility-panel *,
+html body.admin-accessibility-xxlarge #accessibility-panel,
+html body.admin-accessibility-xxlarge #accessibility-panel * {
+  font-size: 16px !important;
+}
+
+#accessibility-panel * {
+  font-size: inherit !important;
+}
+
+/* Estado fechado - só aplica se NÃO tiver aria-hidden="false" */
+#accessibility-panel:not([aria-hidden="false"]):not([style*="display: flex"]):not([style*="display:flex"]) {
+  display: none !important;
+  visibility: hidden !important;
+}
+
+/* Quando o painel está aberto - MÁXIMA PRIORIDADE */
+html body #accessibility-panel[aria-hidden="false"],
+html body #accessibility-panel[style*="display: flex"],
+html body #accessibility-panel[style*="display:flex"] {
+  display: flex !important;
+  opacity: 1 !important;
+  transform: translateY(0) scale(1) !important;
+  visibility: visible !important;
+}
+
+/* Header do painel */
+#accessibility-panel .panel-header-wrapper {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem;
+  border-bottom: 1px solid #e2e8f0;
+  background: #ffffff;
+}
+
+#accessibility-panel h3 {
+  margin: 0;
+  font-size: 1.25rem !important;
+  font-weight: 700;
+  color: #2d3748;
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  letter-spacing: -0.3px;
+}
+
+#accessibility-panel .panel-icon {
+  font-size: 1.5rem;
+  line-height: 1;
+}
+
+#accessibility-panel .panel-close-btn,
+#accessibility-panel button.panel-close-btn {
+  background: transparent !important;
+  border: none !important;
+  color: #64748b !important;
+  font-size: 1.25rem !important;
+  cursor: pointer !important;
+  padding: 0 !important;
+  display: flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  border-radius: 50% !important;
+  transition: all 0.15s ease !important;
+  width: 30px !important;
+  height: 30px !important;
+  min-width: 30px !important;
+  min-height: 30px !important;
+  max-width: 30px !important;
+  max-height: 30px !important;
+}
+
+#accessibility-panel .panel-close-btn:hover,
+#accessibility-panel button.panel-close-btn:hover {
+  background: #f1f5f9 !important;
+  color: #2d3748 !important;
+}
+
+#accessibility-panel .panel-description {
+  margin: 0;
+  padding: 1rem 1.5rem;
+  font-size: 0.875rem;
+  color: #64748b;
+  line-height: 1.5;
+  background: #ffffff;
+  border-bottom: 1px solid #e2e8f0;
+}
+
+#accessibility-panel .panel-content {
+  padding: 1.5rem;
+  overflow-y: auto;
+  flex: 1;
+  scrollbar-width: thin;
+  scrollbar-color: #cbd5e1 #f1f5f9;
+  background: #f7fafc;
+  min-height: 200px;
+}
+
+#accessibility-panel .panel-content::-webkit-scrollbar {
+  width: 8px;
+}
+
+#accessibility-panel .panel-content::-webkit-scrollbar-track {
+  background: #f1f5f9;
+  border-radius: 10px;
+}
+
+#accessibility-panel .panel-content::-webkit-scrollbar-thumb {
+  background: #cbd5e1;
+  border-radius: 10px;
+}
+
+#accessibility-panel .panel-content::-webkit-scrollbar-thumb:hover {
+  background: #94a3b8;
+}
+
+/* Seções de acessibilidade - Cards */
+#accessibility-panel .accessibility-section {
+  display: flex;
+  gap: 1rem;
+  padding: 1.25rem;
+  margin-bottom: 1rem;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 8px;
+  transition: all 0.15s ease;
+}
+
+#accessibility-panel .accessibility-section:last-child {
+  margin-bottom: 0;
+}
+
+#accessibility-panel .accessibility-section:hover {
+  border-color: #cbd5e1;
+  box-shadow: 0 1px 3px 0 rgba(0, 0, 0, 0.1);
+}
+
+/* Ícone da seção */
+#accessibility-panel .section-icon {
+  flex-shrink: 0;
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 1.5rem;
+  color: #4a5568;
+  background: #f7fafc;
+  border-radius: 8px;
+  position: relative;
+}
+
+#accessibility-panel .section-icon .icon-small {
+  font-size: 0.875rem;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%) translateX(2px);
+}
+
+/* Conteúdo da seção */
+#accessibility-panel .section-content {
+  flex: 1;
+  min-width: 0;
+}
+
+#accessibility-panel .section-title {
+  margin: 0 0 0.5rem 0;
+  font-size: 1rem !important;
+  font-weight: 700;
+  color: #2d3748;
+  line-height: 1.4;
+}
+
+#accessibility-panel .section-description {
+  margin: 0 0 1rem 0;
+  font-size: 0.875rem !important;
+  color: #64748b;
+  line-height: 1.5;
+}
+
+/* Botões de tamanho de fonte */
+#accessibility-panel .font-size-buttons {
+  display: flex !important;
+  gap: 10px !important;
+  margin-bottom: 20px !important;
+  flex-wrap: wrap;
+}
+
+#accessibility-panel .font-size-buttons button {
+  padding: 0.625rem 0.75rem;
+  font-size: 0.875rem !important;
+  font-weight: 500;
+  cursor: pointer;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #4a5568;
+  border-radius: 6px;
+  text-align: center;
+  transition: all 0.15s ease;
+}
+
+#accessibility-panel .font-size-buttons button:hover {
+  background: #f7fafc;
+  border-color: #cbd5e1;
+}
+
+#accessibility-panel .font-size-buttons button.active {
+  background: #2563eb;
+  color: #ffffff !important;
+  border-color: #2563eb;
+  font-weight: 600;
+}
+
+#accessibility-panel .font-size-buttons button.active:hover {
+  background: #1e40af;
+  border-color: #1e40af;
+}
+
+/* Toggle Switch */
+#accessibility-panel .toggle-switch {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  cursor: pointer;
+  user-select: none;
+}
+
+#accessibility-panel .toggle-switch input[type="checkbox"] {
+  position: relative;
+  width: 44px;
+  height: 24px;
+  appearance: none;
+  background: #cbd5e1;
+  border-radius: 12px;
+  outline: none;
+  cursor: pointer;
+  transition: background 0.2s ease;
+  flex-shrink: 0;
+}
+
+#accessibility-panel .toggle-switch input[type="checkbox"]::before {
+  content: '';
+  position: absolute;
+  width: 20px;
+  height: 20px;
+  border-radius: 50%;
+  background: #ffffff;
+  top: 2px;
+  left: 2px;
+  transition: transform 0.2s ease;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
+}
+
+#accessibility-panel .toggle-switch input[type="checkbox"]:checked {
+  background: #2563eb;
+}
+
+#accessibility-panel .toggle-switch input[type="checkbox"]:checked::before {
+  transform: translateX(20px);
+}
+
+#accessibility-panel .toggle-switch .toggle-label {
+  font-size: 0.875rem !important;
+  font-weight: 500;
+  color: #2d3748;
+}
+
+#accessibility-panel .panel-description {
+  font-size: 0.875rem !important;
+}
+
+/* Accessibility Toggle Button */
+#accessibility-toggle {
+  position: fixed;
+  bottom: 20px;
+  right: 20px;
+  z-index: 9998;
+  width: 56px;
+  height: 56px;
+  border-radius: 50%;
+  background: #4a5568;
+  color: #ffffff;
+  border: none;
+  font-size: 24px;
+  cursor: pointer;
+  box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
+  transition: all 0.2s ease;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: normal;
+}
+
+#accessibility-toggle:hover {
+  background: #2d3748;
+  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+}
+
+#accessibility-toggle:active {
+  transform: scale(0.95);
+}
+
+#accessibility-toggle:focus {
+  outline: none;
+}
+
+/* Screen Reader Only */
+.sr-only {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border-width: 0;
+}
+
+/* Skip Link */
+.skip-link {
+  position: absolute;
+  top: -40px;
+  left: 0;
+  background: var(--admin-primary);
+  color: #ffffff;
+  padding: 8px;
+  text-decoration: none;
+  z-index: 10000;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+

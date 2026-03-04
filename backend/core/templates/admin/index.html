@@ -1,0 +1,51 @@
+{% extends "admin/index.html" %}
+{% load i18n %}
+
+{% block content %}
+{{ block.super }}
+{% endblock %}
+
+{% block sidebar %}
+<div id="content-related">
+  <div class="module" id="django-q-module">
+    <h2>{% trans "Django Q" %}</h2>
+
+    <!-- Traduções customizadas para os itens do Django Q -->
+    <div class="dashboard-item">
+      <h3>
+        <a href="{% url 'admin:django_q_failure_changelist' %}"
+          >{% trans "Tarefas com falhas" %}</a
+        >
+      </h3>
+      <p>Tarefas que falharam durante a execução</p>
+    </div>
+
+    <div class="dashboard-item">
+      <h3>
+        <a href="{% url 'admin:django_q_ormq_changelist' %}"
+          >{% trans "Tarefas em fila" %}</a
+        >
+      </h3>
+      <p>Tarefas aguardando na fila para execução</p>
+    </div>
+
+    <div class="dashboard-item">
+      <h3>
+        <a href="{% url 'admin:django_q_schedule_changelist' %}"
+          >{% trans "Tarefas agendadas" %}</a
+        >
+      </h3>
+      <p>Tarefas agendadas para execução futura</p>
+    </div>
+
+    <div class="dashboard-item">
+      <h3>
+        <a href="{% url 'admin:django_q_success_changelist' %}"
+          >{% trans "Tarefas executadas com sucesso" %}</a
+        >
+      </h3>
+      <p>Tarefas executadas com sucesso</p>
+    </div>
+  </div>
+</div>
+{% endblock %}

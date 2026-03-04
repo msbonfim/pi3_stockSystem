@@ -1,0 +1,30 @@
+**Iniciar o servidor**
+python manage.py runserver
+=====================================
+**na pasta do projeto:**
+pip install django
+
+**criar o projeto - o . indica que o projeto deve ser criado na mesma pasta**
+django-admin startproject NOMEDOPROJETO .
+
+**manage.py command line interface - nele que serão rodados todos os comandos
+
+**app quebra o sistema em várias partes: autenticação, home, etc.
+
+**dentro da pasta do projeto**
+python manage.py startapp NOMEDOAPP
+
+**em settings.py** - mapeia o app criado
+procurar INSTALLED_APPS e incluir 'NOMEDOAPP'
+
+**urls.py gerenciam todas as url**
+
+
+SuperAdmin
+msbonfim01@gmail.com
+Corarte_2025
+
+
+
+venv
+.\venv\Scripts\activate

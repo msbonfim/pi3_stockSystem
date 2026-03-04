@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Teste de Conexão API</title>
+</head>
+<body>
+    <h1>Teste de Conexão com Backend</h1>
+    <button onclick="testConnection()">Testar Conexão</button>
+    <div id="result"></div>
+
+    <script>
+        async function testConnection() {
+            const resultDiv = document.getElementById('result');
+            resultDiv.innerHTML = 'Testando conexão...';
+            
+            try {
+                const response = await fetch('REACT_APP_API_URL=https://pi2-stocksystem-backend.onrender.com/api/products/');
+                
+                if (response.ok) {
+                    const data = await response.json();
+                    resultDiv.innerHTML = `
+                        <h2>✅ Conexão bem-sucedida!</h2>
+                        <p>Status: ${response.status}</p>
+                        <p>Produtos encontrados: ${data.length}</p>
+                        <pre>${JSON.stringify(data, null, 2)}</pre>
+                    `;
+                } else {
+                    resultDiv.innerHTML = `
+                        <h2>❌ Erro na API</h2>
+                        <p>Status: ${response.status}</p>
+                        <p>Status Text: ${response.statusText}</p>
+                    `;
+                }
+            } catch (error) {
+                resultDiv.innerHTML = `
+                    <h2>❌ Erro de Conexão</h2>
+                    <p>Erro: ${error.message}</p>
+                    <p>Verifique se o backend está rodando em REACT_APP_API_URL=https://pi2-stocksystem-backend.onrender.com
+</p>
+                `;
+            }
+        }
+    </script>
+</body>
+</html>

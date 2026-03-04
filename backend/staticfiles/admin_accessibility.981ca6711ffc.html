@@ -1,0 +1,196 @@
+<div id="accessibility-panel" style="display: none; position: fixed; bottom: 20px; right: 20px; z-index: 9999; background: #ffffff; border: 3px solid #000000; border-radius: 8px; padding: 1.5rem; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3); max-width: 350px; max-height: 80vh; overflow-y: auto;">
+  <h3 style="margin-top: 0; margin-bottom: 1rem; font-size: 1.5rem; font-weight: bold; color: #000000;">🎯 Acessibilidade</h3>
+  
+  <div style="margin-bottom: 1.5rem;">
+    <label style="display: block; margin-bottom: 0.75rem; font-weight: bold; font-size: 1.1rem;">
+      Tamanho da Fonte:
+    </label>
+    <div style="display: flex; flex-direction: column; gap: 0.5rem;">
+      <button onclick="setAdminFontSize('normal')" id="admin-font-normal" style="padding: 0.75rem; font-size: 1rem; font-weight: 600; cursor: pointer; border: 2px solid #000000; background: #ffffff; color: #000000; text-align: left;">Normal</button>
+      <button onclick="setAdminFontSize('large')" id="admin-font-large" style="padding: 0.75rem; font-size: 1rem; font-weight: 600; cursor: pointer; border: 2px solid #000000; background: #ffffff; color: #000000; text-align: left;">Grande</button>
+      <button onclick="setAdminFontSize('xlarge')" id="admin-font-xlarge" style="padding: 0.75rem; font-size: 1rem; font-weight: 600; cursor: pointer; border: 2px solid #000000; background: #ffffff; color: #000000; text-align: left;">Extra Grande</button>
+      <button onclick="setAdminFontSize('xxlarge')" id="admin-font-xxlarge" style="padding: 0.75rem; font-size: 1rem; font-weight: 600; cursor: pointer; border: 2px solid #000000; background: #ffffff; color: #000000; text-align: left;">Muito Grande</button>
+    </div>
+  </div>
+  
+  <div style="margin-bottom: 1.5rem;">
+    <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem;">
+      <input type="checkbox" id="admin-high-contrast" onchange="toggleAdminHighContrast(this.checked)" style="width: 20px; height: 20px; cursor: pointer;">
+      <span style="font-weight: 600;">Alto Contraste</span>
+    </label>
+  </div>
+  
+  <div style="margin-bottom: 1.5rem;">
+    <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem;">
+      <input type="checkbox" id="admin-large-buttons" onchange="toggleAdminLargeButtons(this.checked)" style="width: 20px; height: 20px; cursor: pointer;">
+      <span style="font-weight: 600;">Botões Grandes</span>
+    </label>
+  </div>
+  
+  <div style="margin-bottom: 1.5rem;">
+    <label style="display: flex; align-items: center; gap: 0.75rem; font-size: 1.1rem;">
+      <input type="checkbox" id="admin-simplified-view" onchange="toggleAdminSimplifiedView(this.checked)" style="width: 20px; height: 20px; cursor: pointer;">
+      <span style="font-weight: 600;">Visual Simplificado</span>
+    </label>
+  </div>
+  
+  <button onclick="resetAdminAccessibility()" style="display: block; width: 100%; padding: 0.75rem; margin-bottom: 0.5rem; font-size: 1rem; font-weight: 600; cursor: pointer; border: 2px solid #ff0000; background: #ff6b6b; color: #ffffff;">Redefinir</button>
+  
+  <button onclick="toggleAdminPanel()" style="display: block; width: 100%; padding: 0.75rem; background: #666666; color: #ffffff; border: 2px solid #000000; font-size: 1rem; font-weight: 600; cursor: pointer;">Fechar</button>
+</div>
+
+<button 
+  id="admin-accessibility-toggle" 
+  onclick="toggleAdminPanel()"
+  style="
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    z-index: 9998;
+    width: 70px;
+    height: 70px;
+    border-radius: 50%;
+    background: #2196F3;
+    color: white;
+    border: 3px solid #000000;
+    font-size: 32px;
+    font-weight: bold;
+    cursor: pointer;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    transition: transform 0.2s;
+  "
+  title="Acessibilidade (Alt+A)"
+  aria-label="Abrir configurações de acessibilidade"
+  onmouseover="this.style.transform='scale(1.1)'"
+  onmouseout="this.style.transform='scale(1)'"
+>
+  ♿
+</button>
+
+<script>
+let adminFontSize = localStorage.getItem('admin-font-size') || 'normal';
+let adminHighContrast = localStorage.getItem('admin-high-contrast') === 'true';
+let adminLargeButtons = localStorage.getItem('admin-large-buttons') === 'true';
+let adminSimplifiedView = localStorage.getItem('admin-simplified-view') === 'true';
+
+function initAdminAccessibility() {
+  applyAdminAccessibilitySettings();
+}
+
+function applyAdminAccessibilitySettings() {
+  const body = document.body;
+  
+  // Remove todas as classes anteriores
+  body.classList.remove(
+    'admin-accessibility-large',
+    'admin-accessibility-xlarge',
+    'admin-accessibility-xxlarge',
+    'admin-accessibility-high-contrast',
+    'admin-accessibility-large-buttons',
+    'admin-accessibility-simplified',
+    'admin-accessibility-enabled'
+  );
+  
+  // Aplica tamanho de fonte
+  if (adminFontSize !== 'normal') {
+    body.classList.add(`admin-accessibility-${adminFontSize}`);
+  }
+  
+  // Aplica outras configurações
+  if (adminHighContrast) {
+    body.classList.add('admin-accessibility-high-contrast');
+  }
+  
+  if (adminLargeButtons) {
+    body.classList.add('admin-accessibility-large-buttons');
+  }
+  
+  if (adminSimplifiedView) {
+    body.classList.add('admin-accessibility-simplified');
+  }
+  
+  // Sempre adiciona enabled para foco visível
+  body.classList.add('admin-accessibility-enabled');
+  
+  // Atualiza checkboxes
+  const highContrastCheck = document.getElementById('admin-high-contrast');
+  const largeButtonsCheck = document.getElementById('admin-large-buttons');
+  const simplifiedCheck = document.getElementById('admin-simplified-view');
+  
+  if (highContrastCheck) highContrastCheck.checked = adminHighContrast;
+  if (largeButtonsCheck) largeButtonsCheck.checked = adminLargeButtons;
+  if (simplifiedCheck) simplifiedCheck.checked = adminSimplifiedView;
+  
+  // Atualiza botões de fonte
+  ['normal', 'large', 'xlarge', 'xxlarge'].forEach(size => {
+    const btn = document.getElementById(`admin-font-${size}`);
+    if (btn) {
+      btn.style.background = size === adminFontSize ? '#2196F3' : '#ffffff';
+      btn.style.color = size === adminFontSize ? '#ffffff' : '#000000';
+    }
+  });
+}
+
+function setAdminFontSize(size) {
+  adminFontSize = size;
+  localStorage.setItem('admin-font-size', size);
+  applyAdminAccessibilitySettings();
+}
+
+function toggleAdminHighContrast(enabled) {
+  adminHighContrast = enabled;
+  localStorage.setItem('admin-high-contrast', enabled);
+  applyAdminAccessibilitySettings();
+}
+
+function toggleAdminLargeButtons(enabled) {
+  adminLargeButtons = enabled;
+  localStorage.setItem('admin-large-buttons', enabled);
+  applyAdminAccessibilitySettings();
+}
+
+function toggleAdminSimplifiedView(enabled) {
+  adminSimplifiedView = enabled;
+  localStorage.setItem('admin-simplified-view', enabled);
+  applyAdminAccessibilitySettings();
+}
+
+function resetAdminAccessibility() {
+  adminFontSize = 'normal';
+  adminHighContrast = false;
+  adminLargeButtons = false;
+  adminSimplifiedView = false;
+  
+  localStorage.removeItem('admin-font-size');
+  localStorage.removeItem('admin-high-contrast');
+  localStorage.removeItem('admin-large-buttons');
+  localStorage.removeItem('admin-simplified-view');
+  
+  applyAdminAccessibilitySettings();
+}
+
+function toggleAdminPanel() {
+  const panel = document.getElementById('accessibility-panel');
+  if (panel && panel.style.display === 'none') {
+    panel.style.display = 'block';
+  } else if (panel) {
+    panel.style.display = 'none';
+  }
+}
+
+// Tecla de atalho Alt+A
+document.addEventListener('keydown', function(e) {
+  if (e.altKey && e.key.toLowerCase() === 'a') {
+    e.preventDefault();
+    toggleAdminPanel();
+  }
+});
+
+// Inicializa quando o DOM estiver pronto
+if (document.readyState === 'loading') {
+  document.addEventListener('DOMContentLoaded', initAdminAccessibility);
+} else {
+  initAdminAccessibility();
+}
+</script>
+

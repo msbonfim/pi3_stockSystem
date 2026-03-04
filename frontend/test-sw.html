@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Test Service Worker</title>
+</head>
+<body>
+    <h1>Test Service Worker</h1>
+    <button onclick="testNotification()">Testar Notificação Manual</button>
+    <button onclick="checkSW()">Verificar Service Worker</button>
+    <div id="status"></div>
+
+    <script>
+        async function checkSW() {
+            const status = document.getElementById('status');
+            if ('serviceWorker' in navigator) {
+                const registration = await navigator.serviceWorker.getRegistration();
+                if (registration) {
+                    status.innerHTML = '✅ Service Worker registrado!<br>' + 
+                        'Active: ' + (registration.active ? 'Sim' : 'Não') + '<br>' +
+                        'Installing: ' + (registration.installing ? 'Sim' : 'Não') + '<br>' +
+                        'Waiting: ' + (registration.waiting ? 'Sim' : 'Não');
+                } else {
+                    status.innerHTML = '❌ Service Worker NÃO registrado!';
+                }
+            } else {
+                status.innerHTML = '❌ Service Worker não suportado neste navegador';
+            }
+        }
+
+        async function testNotification() {
+            if (Notification.permission === 'granted') {
+                new Notification('Teste Manual', {
+                    body: 'Esta é uma notificação de teste manual',
+                    icon: '/pwa-192x192.png'
+                });
+            } else {
+                alert('Permissão de notificação não concedida!');
+            }
+        }
+
+        window.addEventListener('load', () => {
+            checkSW();
+        });
+    </script>
+</body>
+</html>
+
