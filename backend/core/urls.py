@@ -8,6 +8,8 @@ from .views import (
     ExpiredProductsView,
     CategoryListCreateView,
     dashboard_stats,
+    dashboard_analytics,
+    metabase_analytics,
     NotificationListCreateView,
     NotificationDetailView,
     mark_notification_read,
@@ -37,8 +39,11 @@ urlpatterns = [
     # Categorias
     path('categories/', CategoryListCreateView.as_view(), name='category-list-create'),
     
-    # Dashboard
+    # Dashboard / BI (frontend + Metabase usam o mesmo Postgres)
     path('dashboard/stats/', dashboard_stats, name='dashboard-stats'),
+    path('dashboard/analytics/', dashboard_analytics, name='dashboard-analytics'),
+    path('bi/summary/', dashboard_analytics, name='bi-summary'),
+    path('metabase/analytics/', metabase_analytics, name='metabase-analytics'),
     
     # Notificações
     path('notifications/', NotificationListCreateView.as_view(), name='notification-list-create'),

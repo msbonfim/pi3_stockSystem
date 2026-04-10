@@ -6,7 +6,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { AlertTriangle, Calendar, Package, LogIn, Search, Filter, TrendingUp, Clock, Archive } from "lucide-react";
+import { Link } from "react-router-dom";
+import { AlertTriangle, Calendar, Package, LogIn, Search, Filter, TrendingUp, Clock, Archive, LayoutDashboard } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Product, CreateProductRequest } from "@/services/api";
 
@@ -166,12 +167,20 @@ export function InventoryDashboard() {
             <p className="text-muted-foreground">Controle de validade e gestão de produtos</p>
           </div>
           
-          <a href="https://pi2-stocksystem-backend.onrender.com/admin/" target="_blank" rel="noopener noreferrer">
-            <Button className="bg-gradient-primary shadow-lg">
-              <LogIn className="mr-2 h-4 w-4" />
-              Login
+          <div className="flex flex-wrap gap-2">
+            <Button variant="outline" asChild>
+              <Link to="/relatorios">
+                <LayoutDashboard className="mr-2 h-4 w-4" />
+                Análises
+              </Link>
             </Button>
-          </a>
+            <a href="https://pi2-stocksystem-backend.onrender.com/admin/" target="_blank" rel="noopener noreferrer">
+              <Button className="bg-gradient-primary shadow-lg">
+                <LogIn className="mr-2 h-4 w-4" />
+                Login
+              </Button>
+            </a>
+          </div>
         </div>
 
         {/* Stats Cards */}

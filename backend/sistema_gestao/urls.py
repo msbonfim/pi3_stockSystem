@@ -30,6 +30,9 @@ def home(request):
             'products': '/api/products/',
             'categories': '/api/categories/',
             'dashboard': '/api/dashboard/stats/',
+            'analytics': '/api/dashboard/analytics/',
+            'bi_summary': '/api/bi/summary/',
+            'metabase_analytics': '/api/metabase/analytics/',
             'admin': '/admin/'
         }
     })

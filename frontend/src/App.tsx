@@ -7,6 +7,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
+import MetabaseReports from "./pages/MetabaseReports";
 import NotFound from "./pages/NotFound";
 import { pushNotificationService } from "./services/pushNotifications";
 import { AccessibilityProvider } from "./contexts/AccessibilityContext";
@@ -74,6 +75,7 @@ const App = () => {
           <BrowserRouter>
             <Routes>
               <Route path="/" element={<Index />} />
+              <Route path="/relatorios" element={<MetabaseReports />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

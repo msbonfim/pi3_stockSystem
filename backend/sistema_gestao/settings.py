@@ -13,8 +13,14 @@ https://docs.djangoproject.com/en/5.2/ref/settings/
 from pathlib import Path
 import os
 
+import dj_database_url
+from dotenv import load_dotenv
+
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
+
+# Variáveis locais (Metabase, etc.): copie .env.example → .env em backend/
+load_dotenv(BASE_DIR / ".env")
 
 
 # Quick-start development settings - unsuitable for production
@@ -97,12 +103,16 @@ X_FRAME_OPTIONS = 'SAMEORIGIN'
 # Database
 # https://docs.djangoproject.com/en/5.2/ref/settings/#databases
 
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+_database_url = os.environ.get('DATABASE_URL')
+if _database_url:
+    DATABASES = {'default': dj_database_url.parse(_database_url, conn_max_age=600)}
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
 
 
 # Password validation
@@ -272,3 +282,32 @@ xyiUqtV3sw3xf0BeBUiCGRmm12pymXYuyPsyC/wjbsn3xd8Q5zszh+ok
 VAPID_CLAIMS = {
     "sub": os.environ.get('VAPID_EMAIL', "mailto:admin@stockystem.com")
 }
+
+# --- Metabase (BI no frontend via API do Django) ---
+# Credenciais só no servidor. Crie 6 perguntas SQL no Metabase (ver core/metabase_cards.sql),
+# guarde cada uma e copie o ID da URL (/question/123 → 123).
+METABASE_URL = os.environ.get("METABASE_URL", "http://localhost:3000").rstrip("/")
+METABASE_USER = os.environ.get("METABASE_USER", os.environ.get("METABASE_USERNAME", "")).strip()
+METABASE_PASSWORD = os.environ.get("METABASE_PASSWORD", "").strip()
+METABASE_API_KEY = os.environ.get("METABASE_API_KEY", "").strip()
+
+
+def _metabase_card_id(name: str, default: str = "0") -> int:
+    try:
+        return int(os.environ.get(name, default))
+    except ValueError:
+        return 0
+
+
+METABASE_CARD_IDS = {
+    "overview": _metabase_card_id("METABASE_CARD_OVERVIEW"),
+    "by_category": _metabase_card_id("METABASE_CARD_BY_CATEGORY"),
+    "by_brand": _metabase_card_id("METABASE_CARD_BY_BRAND"),
+    "low_stock": _metabase_card_id("METABASE_CARD_LOW_STOCK"),
+    "top_by_stock_value": _metabase_card_id("METABASE_CARD_TOP_VALUE"),
+    "expiration": _metabase_card_id("METABASE_CARD_EXPIRATION"),
+}
+
+# Opcional: nome da collection com as 6 perguntas (auto-descoberta de IDs).
+# Exemplo: METABASE_COLLECTION_NAME=BI Estoque
+METABASE_COLLECTION_NAME = os.environ.get("METABASE_COLLECTION_NAME", "").strip()

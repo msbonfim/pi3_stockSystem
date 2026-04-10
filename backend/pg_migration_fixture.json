@@ -1,0 +1,1904 @@
+[
+{
+  "model": "core.category",
+  "pk": 1,
+  "fields": {
+    "name": "Cabelo"
+  }
+},
+{
+  "model": "core.category",
+  "pk": 2,
+  "fields": {
+    "name": "Finalização"
+  }
+},
+{
+  "model": "core.category",
+  "pk": 3,
+  "fields": {
+    "name": "teste"
+  }
+},
+{
+  "model": "core.category",
+  "pk": 4,
+  "fields": {
+    "name": "Cabelos"
+  }
+},
+{
+  "model": "core.category",
+  "pk": 5,
+  "fields": {
+    "name": "Beleza"
+  }
+},
+{
+  "model": "core.category",
+  "pk": 6,
+  "fields": {
+    "name": "Acessórios"
+  }
+},
+{
+  "model": "core.category",
+  "pk": 7,
+  "fields": {
+    "name": "Maquiagem"
+  }
+},
+{
+  "model": "core.category",
+  "pk": 8,
+  "fields": {
+    "name": "Perfumaria"
+  }
+},
+{
+  "model": "core.category",
+  "pk": 9,
+  "fields": {
+    "name": "Higiene"
+  }
+},
+{
+  "model": "core.category",
+  "pk": 10,
+  "fields": {
+    "name": "Equipamentos"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 1,
+  "fields": {
+    "name": "L’Oréal Professionnel"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 2,
+  "fields": {
+    "name": "Wella Professionals"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 3,
+  "fields": {
+    "name": "Schwarzkopf"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 4,
+  "fields": {
+    "name": "Moroccanoil"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 5,
+  "fields": {
+    "name": "Redken"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 6,
+  "fields": {
+    "name": "Koleston"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 7,
+  "fields": {
+    "name": "Amend"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 8,
+  "fields": {
+    "name": "Salon Line"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 9,
+  "fields": {
+    "name": "Karina"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 10,
+  "fields": {
+    "name": "Bozzano"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 11,
+  "fields": {
+    "name": "Risqué"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 12,
+  "fields": {
+    "name": "Impala"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 13,
+  "fields": {
+    "name": "Apolo"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 14,
+  "fields": {
+    "name": "Marco Boni"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 15,
+  "fields": {
+    "name": "Taiff"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 16,
+  "fields": {
+    "name": "Belliz"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 17,
+  "fields": {
+    "name": "Macrilan"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 18,
+  "fields": {
+    "name": "Vult"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 19,
+  "fields": {
+    "name": "Maybelline"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 20,
+  "fields": {
+    "name": "Quem Disse, Berenice?"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 21,
+  "fields": {
+    "name": "Natura Faces"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 22,
+  "fields": {
+    "name": "Tracta"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 23,
+  "fields": {
+    "name": "O Boticário"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 24,
+  "fields": {
+    "name": "Avon"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 25,
+  "fields": {
+    "name": "Natura"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 26,
+  "fields": {
+    "name": "Neutrogena"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 27,
+  "fields": {
+    "name": "La Roche-Posay"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 28,
+  "fields": {
+    "name": "Nivea"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 29,
+  "fields": {
+    "name": "Gillette"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 30,
+  "fields": {
+    "name": "Depil Bella"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 31,
+  "fields": {
+    "name": "L’Oréal Paris"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 32,
+  "fields": {
+    "name": "Ruby Rose"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 33,
+  "fields": {
+    "name": "Natura Ekos"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 34,
+  "fields": {
+    "name": "Ricca"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 35,
+  "fields": {
+    "name": "Vertix"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 36,
+  "fields": {
+    "name": "Philco"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 37,
+  "fields": {
+    "name": "Wahl"
+  }
+},
+{
+  "model": "core.brand",
+  "pk": 38,
+  "fields": {
+    "name": "Mundial"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 3,
+  "fields": {
+    "name": "Shampoo Hidratante",
+    "description": "Shampoo hidratante para todos os tipos de cabelo",
+    "price": "10.00",
+    "quantity": 10,
+    "expiration_date": "2025-07-14",
+    "category": 1,
+    "brand": null,
+    "batch": "SH20250715",
+    "created_at": "2025-09-29T00:30:37.824",
+    "updated_at": "2025-10-21T23:57:05.974"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 4,
+  "fields": {
+    "name": "Máscara Capilar Reconstrutora",
+    "description": "Máscara capilar para reconstrução intensa dos fios",
+    "price": "15.00",
+    "quantity": 5,
+    "expiration_date": "2025-09-09",
+    "category": 1,
+    "brand": null,
+    "batch": "MC20250910",
+    "created_at": "2025-09-29T00:45:00.400",
+    "updated_at": "2025-10-21T23:57:05.968"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 5,
+  "fields": {
+    "name": "Creme para Pentear",
+    "description": "Creme para pentear sem enxágue, ideal para uso diário",
+    "price": "50.00",
+    "quantity": 20,
+    "expiration_date": "2025-10-14",
+    "category": 1,
+    "brand": null,
+    "batch": "CP20251015",
+    "created_at": "2025-09-29T00:46:08.995",
+    "updated_at": "2025-10-21T23:57:05.962"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 6,
+  "fields": {
+    "name": "Óleo Capilar Nutritivo",
+    "description": "Óleo nutritivo para cabelos secos e ressecados",
+    "price": "17.00",
+    "quantity": 15,
+    "expiration_date": "2026-03-19",
+    "category": 1,
+    "brand": null,
+    "batch": "OC20260320",
+    "created_at": "2025-09-29T00:46:49.447",
+    "updated_at": "2025-10-21T23:57:05.957"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 7,
+  "fields": {
+    "name": "Spray Fixador",
+    "description": "Spray fixador de alta duração para penteados",
+    "price": "53.99",
+    "quantity": 18,
+    "expiration_date": "2026-06-04",
+    "category": 2,
+    "brand": null,
+    "batch": "SF20260605",
+    "created_at": "2025-09-29T00:47:31.992",
+    "updated_at": "2025-10-21T23:57:05.950"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 8,
+  "fields": {
+    "name": "teste",
+    "description": "teste",
+    "price": "13.89",
+    "quantity": 20,
+    "expiration_date": "2025-10-18",
+    "category": 3,
+    "brand": null,
+    "batch": "AAAAAAAAAAAA",
+    "created_at": "2025-10-12T17:15:25.411",
+    "updated_at": "2025-10-21T23:57:05.944"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 9,
+  "fields": {
+    "name": "Shampoo Hidratante",
+    "description": "Shampoo para hidratação profunda dos fios",
+    "price": "89.90",
+    "quantity": 25,
+    "expiration_date": "2027-07-15",
+    "category": 4,
+    "brand": 1,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.236",
+    "updated_at": "2025-10-21T23:57:05.935"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 10,
+  "fields": {
+    "name": "Condicionador Nutritivo",
+    "description": "Condicionador para nutrição capilar intensa",
+    "price": "92.50",
+    "quantity": 18,
+    "expiration_date": "2028-03-28",
+    "category": 4,
+    "brand": 2,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.242",
+    "updated_at": "2025-10-21T23:57:05.928"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 11,
+  "fields": {
+    "name": "Máscara Capilar Reparadora",
+    "description": "Máscara para reconstrução dos fios danificados",
+    "price": "115.00",
+    "quantity": 14,
+    "expiration_date": "2027-09-12",
+    "category": 4,
+    "brand": 3,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.247",
+    "updated_at": "2025-10-21T23:57:05.921"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 12,
+  "fields": {
+    "name": "Óleo Capilar Argan",
+    "description": "Óleo para brilho e maciez dos cabelos",
+    "price": "150.00",
+    "quantity": 20,
+    "expiration_date": "2028-06-20",
+    "category": 4,
+    "brand": 4,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.250",
+    "updated_at": "2025-10-21T23:57:05.912"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 13,
+  "fields": {
+    "name": "Leave-in Protetor Térmico",
+    "description": "Protetor térmico para uso antes da escova",
+    "price": "98.00",
+    "quantity": 22,
+    "expiration_date": "2027-04-03",
+    "category": 4,
+    "brand": 5,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.254",
+    "updated_at": "2025-10-21T23:57:05.905"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 14,
+  "fields": {
+    "name": "Tintura Loiro Dourado",
+    "description": "Tintura para coloração permanente dos cabelos",
+    "price": "32.90",
+    "quantity": 30,
+    "expiration_date": "2026-11-17",
+    "category": 4,
+    "brand": 6,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.259",
+    "updated_at": "2025-10-21T23:57:05.896"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 15,
+  "fields": {
+    "name": "Pó Descolorante Azul",
+    "description": "Pó descolorante para clareamento capilar",
+    "price": "42.00",
+    "quantity": 28,
+    "expiration_date": "2027-02-08",
+    "category": 4,
+    "brand": 7,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.263",
+    "updated_at": "2025-10-21T23:57:05.889"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 16,
+  "fields": {
+    "name": "Creme para Pentear Cachos",
+    "description": "Creme ativador e modelador de cachos",
+    "price": "24.90",
+    "quantity": 40,
+    "expiration_date": "2027-10-23",
+    "category": 4,
+    "brand": 8,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.267",
+    "updated_at": "2025-10-21T23:57:05.878"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 17,
+  "fields": {
+    "name": "Fixador de Cabelos Spray Forte",
+    "description": "Spray fixador com alta duração",
+    "price": "29.50",
+    "quantity": 35,
+    "expiration_date": "2028-05-11",
+    "category": 4,
+    "brand": 9,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.271",
+    "updated_at": "2025-10-21T23:57:05.868"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 18,
+  "fields": {
+    "name": "Gel Capilar Masculino",
+    "description": "Gel fixador forte para modelagem masculina",
+    "price": "18.00",
+    "quantity": 27,
+    "expiration_date": "2028-03-15",
+    "category": 4,
+    "brand": 10,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.276",
+    "updated_at": "2025-10-21T23:57:05.860"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 19,
+  "fields": {
+    "name": "Esmalte Rosa Chic",
+    "description": "Esmalte de longa duração com brilho intenso",
+    "price": "6.50",
+    "quantity": 50,
+    "expiration_date": "2027-06-04",
+    "category": 5,
+    "brand": 11,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.281",
+    "updated_at": "2025-10-21T23:57:05.851"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 20,
+  "fields": {
+    "name": "Removedor de Esmalte",
+    "description": "Removedor de esmalte sem acetona",
+    "price": "9.90",
+    "quantity": 45,
+    "expiration_date": "2027-07-22",
+    "category": 5,
+    "brand": 12,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.285",
+    "updated_at": "2025-10-21T23:57:05.844"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 21,
+  "fields": {
+    "name": "Algodão Hidrófilo",
+    "description": "Algodão 100% puro para limpeza e remoção de maquiagem",
+    "price": "8.50",
+    "quantity": 55,
+    "expiration_date": "2028-02-13",
+    "category": 5,
+    "brand": 13,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.288",
+    "updated_at": "2025-10-21T23:57:05.834"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 22,
+  "fields": {
+    "name": "Lixa de Unha Profissional",
+    "description": "Lixa dupla face profissional",
+    "price": "3.90",
+    "quantity": 60,
+    "expiration_date": null,
+    "category": 5,
+    "brand": 14,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.293",
+    "updated_at": "2025-10-18T17:59:41.293"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 23,
+  "fields": {
+    "name": "Tesoura de Corte Profissional",
+    "description": "Tesoura de aço inox para cortes precisos",
+    "price": "120.00",
+    "quantity": 10,
+    "expiration_date": null,
+    "category": 4,
+    "brand": 15,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.297",
+    "updated_at": "2025-10-18T17:59:41.297"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 24,
+  "fields": {
+    "name": "Toalha de Microfibra",
+    "description": "Toalha macia para secagem rápida",
+    "price": "35.00",
+    "quantity": 25,
+    "expiration_date": null,
+    "category": 6,
+    "brand": 16,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.302",
+    "updated_at": "2025-10-18T17:59:41.302"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 25,
+  "fields": {
+    "name": "Pincel de Maquiagem Chanfrado",
+    "description": "Pincel para aplicação de blush ou contorno",
+    "price": "19.90",
+    "quantity": 35,
+    "expiration_date": null,
+    "category": 7,
+    "brand": 17,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.308",
+    "updated_at": "2025-10-18T17:59:41.308"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 26,
+  "fields": {
+    "name": "Base Líquida Média Cobertura",
+    "description": "Base líquida de cobertura uniforme",
+    "price": "36.90",
+    "quantity": 40,
+    "expiration_date": "2027-09-30",
+    "category": 7,
+    "brand": 18,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.312",
+    "updated_at": "2025-10-21T23:57:05.798"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 27,
+  "fields": {
+    "name": "Pó Compacto Bege Claro",
+    "description": "Pó compacto para acabamento natural",
+    "price": "45.00",
+    "quantity": 32,
+    "expiration_date": "2028-04-09",
+    "category": 7,
+    "brand": 19,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.317",
+    "updated_at": "2025-10-21T23:57:05.791"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 28,
+  "fields": {
+    "name": "Batom Matte Vermelho Intenso",
+    "description": "Batom matte de longa duração",
+    "price": "39.90",
+    "quantity": 44,
+    "expiration_date": "2027-02-11",
+    "category": 7,
+    "brand": 20,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.323",
+    "updated_at": "2025-10-21T23:57:05.782"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 29,
+  "fields": {
+    "name": "Gloss Labial Incolor",
+    "description": "Gloss hidratante com brilho intenso",
+    "price": "29.90",
+    "quantity": 46,
+    "expiration_date": "2027-11-19",
+    "category": 7,
+    "brand": 21,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.328",
+    "updated_at": "2025-10-21T23:57:05.774"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 30,
+  "fields": {
+    "name": "Sombra Compacta Nude",
+    "description": "Sombra compacta com alta pigmentação",
+    "price": "27.00",
+    "quantity": 33,
+    "expiration_date": "2027-06-10",
+    "category": 7,
+    "brand": 22,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.332",
+    "updated_at": "2025-10-21T23:57:05.765"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 31,
+  "fields": {
+    "name": "Delineador Líquido Preto",
+    "description": "Delineador de alta precisão",
+    "price": "38.00",
+    "quantity": 38,
+    "expiration_date": "2028-05-04",
+    "category": 7,
+    "brand": 23,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.337",
+    "updated_at": "2025-10-21T23:57:05.758"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 32,
+  "fields": {
+    "name": "Máscara de Cílios Volumax",
+    "description": "Máscara para volume e alongamento dos cílios",
+    "price": "42.90",
+    "quantity": 29,
+    "expiration_date": "2028-07-28",
+    "category": 7,
+    "brand": 24,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.342",
+    "updated_at": "2025-10-21T23:57:05.749"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 33,
+  "fields": {
+    "name": "Perfume Essencial Feminino",
+    "description": "Fragrância floral amadeirada elegante",
+    "price": "189.00",
+    "quantity": 20,
+    "expiration_date": "2028-01-09",
+    "category": 8,
+    "brand": 25,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.347",
+    "updated_at": "2025-10-21T23:57:05.742"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 34,
+  "fields": {
+    "name": "Perfume Kaiak Masculino",
+    "description": "Fragrância fresca e marcante",
+    "price": "159.90",
+    "quantity": 18,
+    "expiration_date": "2027-08-14",
+    "category": 8,
+    "brand": 25,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.351",
+    "updated_at": "2025-10-21T23:57:05.733"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 35,
+  "fields": {
+    "name": "Desodorante Corporal Ilía",
+    "description": "Desodorante com fragrância suave",
+    "price": "49.90",
+    "quantity": 50,
+    "expiration_date": "2028-10-11",
+    "category": 8,
+    "brand": 25,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.355",
+    "updated_at": "2025-10-21T23:57:05.726"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 36,
+  "fields": {
+    "name": "Colônia Humor Próprio",
+    "description": "Colônia jovem e divertida",
+    "price": "119.90",
+    "quantity": 25,
+    "expiration_date": "2027-02-23",
+    "category": 8,
+    "brand": 25,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.360",
+    "updated_at": "2025-10-21T23:57:05.718"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 37,
+  "fields": {
+    "name": "Creme Hidratante Corporal Tododia",
+    "description": "Hidratante para uso diário com toque suave",
+    "price": "49.90",
+    "quantity": 30,
+    "expiration_date": "2028-05-05",
+    "category": 8,
+    "brand": 25,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.364",
+    "updated_at": "2025-10-21T23:57:05.711"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 38,
+  "fields": {
+    "name": "Óleo Corporal Sève Amêndoas Doces",
+    "description": "Óleo corporal com perfume marcante",
+    "price": "78.90",
+    "quantity": 22,
+    "expiration_date": "2027-11-22",
+    "category": 8,
+    "brand": 25,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.368",
+    "updated_at": "2025-10-21T23:57:05.705"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 39,
+  "fields": {
+    "name": "Sabonete Líquido Corporal",
+    "description": "Sabonete líquido com fragrância suave",
+    "price": "29.90",
+    "quantity": 35,
+    "expiration_date": "2028-04-15",
+    "category": 9,
+    "brand": 25,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.374",
+    "updated_at": "2025-10-21T23:57:05.697"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 40,
+  "fields": {
+    "name": "Sabonete em Barra Puro Vegetal",
+    "description": "Sabonete natural hidratante",
+    "price": "7.90",
+    "quantity": 60,
+    "expiration_date": "2027-10-30",
+    "category": 9,
+    "brand": 25,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.378",
+    "updated_at": "2025-10-21T23:57:05.690"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 41,
+  "fields": {
+    "name": "Álcool Gel Higienizador",
+    "description": "Higienizador de mãos com aroma leve",
+    "price": "15.90",
+    "quantity": 55,
+    "expiration_date": "2027-12-10",
+    "category": 9,
+    "brand": 25,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.382",
+    "updated_at": "2025-10-21T23:57:05.681"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 42,
+  "fields": {
+    "name": "Creme para Mãos Maciez",
+    "description": "Creme hidratante para mãos ressecadas",
+    "price": "34.90",
+    "quantity": 25,
+    "expiration_date": "2028-09-08",
+    "category": 9,
+    "brand": 25,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.386",
+    "updated_at": "2025-10-21T23:57:05.675"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 43,
+  "fields": {
+    "name": "Lenço Umedecido Facial",
+    "description": "Lenços para limpeza facial",
+    "price": "29.00",
+    "quantity": 42,
+    "expiration_date": "2027-06-17",
+    "category": 5,
+    "brand": 26,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.392",
+    "updated_at": "2025-10-21T23:57:05.665"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 44,
+  "fields": {
+    "name": "Protetor Solar FPS 50",
+    "description": "Protetor solar facial de alta proteção",
+    "price": "89.90",
+    "quantity": 38,
+    "expiration_date": "2028-05-13",
+    "category": 5,
+    "brand": 27,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.396",
+    "updated_at": "2025-10-21T23:57:05.659"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 45,
+  "fields": {
+    "name": "Creme Facial Antissinais",
+    "description": "Creme anti-idade com Q10 Plus",
+    "price": "54.90",
+    "quantity": 33,
+    "expiration_date": "2027-09-04",
+    "category": 5,
+    "brand": 28,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.401",
+    "updated_at": "2025-10-21T23:57:05.650"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 46,
+  "fields": {
+    "name": "Espuma de Barbear Suave",
+    "description": "Espuma para barbear com ação hidratante",
+    "price": "24.90",
+    "quantity": 28,
+    "expiration_date": "2028-03-18",
+    "category": 9,
+    "brand": 29,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.406",
+    "updated_at": "2025-10-21T23:57:05.644"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 47,
+  "fields": {
+    "name": "Cera Depilatória Quente",
+    "description": "Cera quente para depilação profissional",
+    "price": "22.90",
+    "quantity": 26,
+    "expiration_date": "2027-11-29",
+    "category": 5,
+    "brand": 30,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.411",
+    "updated_at": "2025-10-21T23:57:05.635"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 48,
+  "fields": {
+    "name": "Removedor de Maquiagem Bifásico",
+    "description": "Removedor suave para maquiagem à prova d’água",
+    "price": "39.90",
+    "quantity": 41,
+    "expiration_date": "2027-07-07",
+    "category": 7,
+    "brand": 31,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.415",
+    "updated_at": "2025-10-21T23:57:05.629"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 49,
+  "fields": {
+    "name": "Paleta de Contorno Facial",
+    "description": "Paleta com tons para contorno e iluminação",
+    "price": "52.00",
+    "quantity": 34,
+    "expiration_date": "2027-08-25",
+    "category": 7,
+    "brand": 32,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.420",
+    "updated_at": "2025-10-21T23:57:05.620"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 50,
+  "fields": {
+    "name": "Esfoliante Corporal",
+    "description": "Esfoliante com partículas naturais",
+    "price": "64.90",
+    "quantity": 21,
+    "expiration_date": "2024-02-19",
+    "category": 5,
+    "brand": 33,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.425",
+    "updated_at": "2025-10-21T23:57:05.609"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 51,
+  "fields": {
+    "name": "Pente de Madeira",
+    "description": "Pente antiestático para cabelos",
+    "price": "14.90",
+    "quantity": 40,
+    "expiration_date": null,
+    "category": 6,
+    "brand": 14,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.429",
+    "updated_at": "2025-10-18T17:59:41.429"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 52,
+  "fields": {
+    "name": "Escova de Cabelo Raquete",
+    "description": "Escova para desembaraçar cabelos longos",
+    "price": "29.90",
+    "quantity": 32,
+    "expiration_date": null,
+    "category": 6,
+    "brand": 34,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.433",
+    "updated_at": "2025-10-18T17:59:41.433"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 53,
+  "fields": {
+    "name": "Capa de Corte Profissional",
+    "description": "Capa impermeável para cortes e tinturas",
+    "price": "59.90",
+    "quantity": 15,
+    "expiration_date": null,
+    "category": 6,
+    "brand": 35,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.437",
+    "updated_at": "2025-10-18T17:59:41.437"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 54,
+  "fields": {
+    "name": "Prancha Alisadora Cerâmica",
+    "description": "Prancha com tecnologia cerâmica e controle de temperatura",
+    "price": "280.00",
+    "quantity": 8,
+    "expiration_date": null,
+    "category": 10,
+    "brand": 15,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.442",
+    "updated_at": "2025-10-18T17:59:41.442"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 55,
+  "fields": {
+    "name": "Secador de Cabelos 2000W",
+    "description": "Secador potente para uso profissional",
+    "price": "199.90",
+    "quantity": 12,
+    "expiration_date": null,
+    "category": 10,
+    "brand": 36,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.447",
+    "updated_at": "2025-10-18T17:59:41.447"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 56,
+  "fields": {
+    "name": "Máquina de Corte Profissional",
+    "description": "Máquina com lâminas de aço inoxidável",
+    "price": "310.00",
+    "quantity": 10,
+    "expiration_date": null,
+    "category": 10,
+    "brand": 37,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.451",
+    "updated_at": "2025-10-18T17:59:41.451"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 57,
+  "fields": {
+    "name": "Alicate de Cutícula Profissional",
+    "description": "Alicate de aço inox para remoção precisa de cutículas",
+    "price": "34.90",
+    "quantity": 25,
+    "expiration_date": null,
+    "category": 6,
+    "brand": 38,
+    "batch": null,
+    "created_at": "2025-10-18T17:59:41.456",
+    "updated_at": "2025-10-18T17:59:41.456"
+  }
+},
+{
+  "model": "core.product",
+  "pk": 58,
+  "fields": {
+    "name": "tete",
+    "description": "teste",
+    "price": "3333.00",
+    "quantity": 1,
+    "expiration_date": "2025-11-02",
+    "category": 5,
+    "brand": 10,
+    "batch": null,
+    "created_at": "2025-11-01T15:55:12.674",
+    "updated_at": "2025-11-01T18:06:20.902"
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$ji9y03q1cz5YCxwBSeSs4Q$K4C9dHtfGAmZqpVSBflnvkQZQZZlX4Ix5aduxXoygY0=",
+    "last_login": "2025-11-02T20:01:26.640",
+    "is_superuser": true,
+    "username": "admin_root",
+    "first_name": "",
+    "last_name": "",
+    "email": "23202074@aluno.univesp.br",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2025-09-26T01:27:46.878",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "auth.user",
+  "fields": {
+    "password": "pbkdf2_sha256$600000$IgmaTfIOLdU2gF70Wj6RCJ$VCteGVV92Yc3F6kb0PK9b6q61DXJLTl6uK/5fGrfTQI=",
+    "last_login": "2026-03-10T22:16:19.895",
+    "is_superuser": true,
+    "username": "superadmin",
+    "first_name": "",
+    "last_name": "",
+    "email": "",
+    "is_staff": true,
+    "is_active": true,
+    "date_joined": "2026-03-03T23:53:13.794",
+    "groups": [],
+    "user_permissions": []
+  }
+},
+{
+  "model": "core.pushsubscription",
+  "pk": 3,
+  "fields": {
+    "user": null,
+    "endpoint": "https://fcm.googleapis.com/fcm/send/eKIap9gx0hk:APA91bFPYmwk75Gqyph18hjqH71ZYuXYkYHKVZ-VUzdm-gzXA7529mxBBCXqdqJkZjviCXGuI9K9UCFe4WATlHD4__ZE5jNf2kdobrxWdrKWusMUExurDQ8xY-E9pk0vmljSed2znWxb",
+    "p256dh": "BKhBTaayJQ6ujN1GmPBS0tkiwwlIqZvCJcVdZKAT/ivTNUCOqsTYjqBnucrJ0bxH7ZHcg460kXrk9qzDdHkP5P8=",
+    "auth": "azh7IW8yAdMe8xX50tW/LQ==",
+    "created_at": "2025-11-01T21:12:07.608",
+    "active": true
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 117,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2025-11-02T04:08:29.814"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 118,
+  "fields": {
+    "title": "⚠️ tete - Vence HOJE!",
+    "message": "ATENÇÃO! tete vence hoje (02/11/2025). Ação imediata necessária!",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2025-11-02T22:27:24.571"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 119,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:41:13.653"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 120,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:41:18.169"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 121,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:41:41.996"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 122,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:41:44.653"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 123,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:42:12.233"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 124,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:42:14.905"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 125,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:42:42.526"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 126,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:42:45.214"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 127,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:43:12.835"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 128,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:43:15.649"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 129,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:43:43.002"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 130,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:43:46.086"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 131,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:44:41.733"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 132,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:44:44.449"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 133,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:45:11.536"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 134,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:45:14.127"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 135,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:45:41.785"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 136,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:45:44.699"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 137,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:46:11.893"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 138,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:46:14.316"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 139,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:48:30.209"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 140,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:50:59.520"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 141,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:51:26.754"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 142,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:51:30.122"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 143,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:51:56.842"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 144,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:51:59.456"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 145,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:54:36.231"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 146,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:54:38.658"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 147,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:55:03.796"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 148,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:55:06.481"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 149,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:55:33.783"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 150,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:55:36.789"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 151,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-03T23:56:03.924"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 152,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 16 dias",
+    "message": "Óleo Capilar Nutritivo vence em 16 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-03T23:56:06.659"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 153,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 15 dias",
+    "message": "Óleo Capilar Nutritivo vence em 15 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-04T00:16:41.305"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 154,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 15 dias",
+    "message": "Óleo Capilar Nutritivo vence em 15 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-04T00:16:44.694"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 155,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-04T00:17:08.927"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 156,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 15 dias",
+    "message": "Óleo Capilar Nutritivo vence em 15 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-04T00:17:12.292"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 157,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 10 dias",
+    "message": "Óleo Capilar Nutritivo vence em 10 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-09T22:15:04.125"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 158,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-09T22:15:27.295"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 159,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 10 dias",
+    "message": "Óleo Capilar Nutritivo vence em 10 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-09T22:15:30.114"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 160,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-09T22:15:57.452"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 161,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 10 dias",
+    "message": "Óleo Capilar Nutritivo vence em 10 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-09T22:15:59.690"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 162,
+  "fields": {
+    "title": "⚠️ tete - Última unidade!",
+    "message": "tete está com apenas 1 unidade em estoque. Reposição necessária!",
+    "notification_type": "low_stock",
+    "read": false,
+    "user": null,
+    "product": 58,
+    "created_at": "2026-03-09T22:16:27.515"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 163,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 10 dias",
+    "message": "Óleo Capilar Nutritivo vence em 10 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-09T22:16:29.943"
+  }
+},
+{
+  "model": "core.notification",
+  "pk": 164,
+  "fields": {
+    "title": "📅 Óleo Capilar Nutritivo - Vence em 10 dias",
+    "message": "Óleo Capilar Nutritivo vence em 10 dias (19/03/2026). Quantidade: 15.",
+    "notification_type": "expiring_soon",
+    "read": false,
+    "user": null,
+    "product": 6,
+    "created_at": "2026-03-09T22:16:57.631"
+  }
+}
+]
