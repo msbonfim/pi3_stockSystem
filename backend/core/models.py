@@ -64,6 +64,46 @@ class Product(models.Model):
         verbose_name_plural = "Produtos"
         ordering = ['expiration_date']
 
+
+class Sale(models.Model):
+    sold_at = models.DateTimeField(default=timezone.now, verbose_name="Data da Venda")
+    gross_revenue = models.DecimalField(max_digits=12, decimal_places=2, default=0, verbose_name="Receita Bruta")
+    notes = models.CharField(max_length=255, blank=True, null=True, verbose_name="Observações")
+    created_at = models.DateTimeField(auto_now_add=True, verbose_name="Data de Criação")
+
+    class Meta:
+        verbose_name = "Venda"
+        verbose_name_plural = "Vendas"
+        ordering = ["-sold_at", "-id"]
+
+    def __str__(self):
+        return f"Venda #{self.id} - {self.sold_at.strftime('%d/%m/%Y %H:%M')}"
+
+
+class SaleItem(models.Model):
+    sale = models.ForeignKey(
+        Sale,
+        on_delete=models.CASCADE,
+        related_name="items",
+        verbose_name="Venda",
+    )
+    product = models.ForeignKey(
+        Product,
+        on_delete=models.PROTECT,
+        related_name="sale_items",
+        verbose_name="Produto",
+    )
+    quantity = models.PositiveIntegerField(verbose_name="Quantidade")
+    unit_price = models.DecimalField(max_digits=10, decimal_places=2, verbose_name="Preço Unitário")
+    line_total = models.DecimalField(max_digits=12, decimal_places=2, verbose_name="Total da Linha")
+
+    class Meta:
+        verbose_name = "Item da Venda"
+        verbose_name_plural = "Itens da Venda"
+
+    def __str__(self):
+        return f"{self.product} x{self.quantity}"
+
 class Notification(models.Model):
     """Modelo para armazenar notificações enviadas"""
     NOTIFICATION_TYPES = [

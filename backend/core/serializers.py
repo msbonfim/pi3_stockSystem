@@ -1,7 +1,7 @@
 # core/serializers.py
 
 from rest_framework import serializers
-from .models import Product, Category, Notification, PushSubscription # Importe Category
+from .models import Category, Notification, Product, PushSubscription, Sale, SaleItem
 
 # --- NOVO SERIALIZER PARA CATEGORY ---
 class CategorySerializer(serializers.ModelSerializer):
@@ -31,6 +31,36 @@ class ProductSerializer(serializers.ModelSerializer):
             'created_at',
             'updated_at'
         ]
+
+
+class SaleItemWriteSerializer(serializers.Serializer):
+    product = serializers.IntegerField(min_value=1)
+    quantity = serializers.IntegerField(min_value=1)
+    unit_price = serializers.DecimalField(max_digits=10, decimal_places=2, min_value=0)
+
+
+class SaleItemReadSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source='product.name', read_only=True)
+
+    class Meta:
+        model = SaleItem
+        fields = ['id', 'product', 'product_name', 'quantity', 'unit_price', 'line_total']
+        read_only_fields = ['id', 'line_total']
+
+
+class SaleSerializer(serializers.ModelSerializer):
+    items = SaleItemReadSerializer(many=True, read_only=True)
+
+    class Meta:
+        model = Sale
+        fields = ['id', 'sold_at', 'gross_revenue', 'notes', 'created_at', 'items']
+        read_only_fields = ['id', 'gross_revenue', 'created_at', 'items']
+
+
+class SaleCreateSerializer(serializers.Serializer):
+    sold_at = serializers.DateTimeField(required=False)
+    notes = serializers.CharField(required=False, allow_blank=True, allow_null=True, max_length=255)
+    items = SaleItemWriteSerializer(many=True, min_length=1)
 
 
 class NotificationSerializer(serializers.ModelSerializer):

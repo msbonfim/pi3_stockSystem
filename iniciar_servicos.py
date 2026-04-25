@@ -340,14 +340,23 @@ def main():
     # --- Passo 2: Banco de Dados - Migrações ---
     print("\nPASSO 2: Banco de Dados - Migrações")
     escolha_migracoes = input("Deseja verificar e aplicar as migrações (makemigrations e migrate)? (s/N): ").strip().lower()
-    
+
+    # Garante que as migrações usem o mesmo banco padrão do backend (.bat).
+    default_database_url = os.environ.get(
+        "DATABASE_URL", "postgresql://app:app@127.0.0.1:5432/sistema_gestao"
+    )
+    migrate_env = dict(os.environ)
+    migrate_env["DATABASE_URL"] = default_database_url
+
     if escolha_migracoes == 's':
+        print(f"   Banco alvo das migrações: {default_database_url}")
         print("   2.1: Verificando alterações nos modelos (makemigrations)...")
         res_make = subprocess.run(
             [str(python_executable), "manage.py", "makemigrations"], 
             cwd=backend_dir, 
             capture_output=True, 
-            text=True
+            text=True,
+            env=migrate_env,
         )
         
         # Mostra o resultado do makemigrations de forma limpa
@@ -357,7 +366,12 @@ def main():
             print(f"   ✅ Novas migrações geradas:\n{res_make.stdout.strip()}")
         
         print("\n   2.2: Aplicando ao banco de dados (migrate)...")
-        result_migrate = subprocess.run([str(python_executable), "manage.py", "migrate"], cwd=backend_dir, check=False)
+        result_migrate = subprocess.run(
+            [str(python_executable), "manage.py", "migrate"],
+            cwd=backend_dir,
+            check=False,
+            env=migrate_env,
+        )
         if result_migrate.returncode != 0:
             print("\n❌ Erro ao executar migrações. Verifique o log e tente novamente.")
             print("   Se o problema persistir, execute 'python iniciar_servicos.py --rebuild-venv'.")

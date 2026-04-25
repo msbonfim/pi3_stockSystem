@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.template.response import TemplateResponse
 from django.urls import path
-from .models import Product, Category, Brand, Notification, PushSubscription
+from .models import Brand, Category, Notification, Product, PushSubscription, Sale, SaleItem
 from import_export import resources, fields, widgets
 from import_export.admin import ImportExportModelAdmin
 from import_export.widgets import ForeignKeyWidget
@@ -157,6 +157,22 @@ class PushSubscriptionAdmin(admin.ModelAdmin):
         self.message_user(request, f"✅ {count} subscription(s) deletada(s).", level='SUCCESS')
     
     delete_all_subscriptions.short_description = "🗑️ Deletar Subscriptions Selecionadas"
+
+
+class SaleItemInline(admin.TabularInline):
+    model = SaleItem
+    extra = 0
+    readonly_fields = ('product', 'quantity', 'unit_price', 'line_total')
+    can_delete = False
+
+
+@admin.register(Sale)
+class SaleAdmin(admin.ModelAdmin):
+    list_display = ('id', 'sold_at', 'gross_revenue', 'created_at')
+    list_filter = ('sold_at', 'created_at')
+    search_fields = ('id', 'notes')
+    readonly_fields = ('gross_revenue', 'created_at')
+    inlines = [SaleItemInline]
 
 
 # Customização dos modelos do Django Q para tradução

@@ -10,6 +10,8 @@ from .views import (
     dashboard_stats,
     dashboard_analytics,
     metabase_analytics,
+    sales_collection,
+    sales_monthly_summary,
     NotificationListCreateView,
     NotificationDetailView,
     mark_notification_read,
@@ -44,6 +46,8 @@ urlpatterns = [
     path('dashboard/analytics/', dashboard_analytics, name='dashboard-analytics'),
     path('bi/summary/', dashboard_analytics, name='bi-summary'),
     path('metabase/analytics/', metabase_analytics, name='metabase-analytics'),
+    path('sales/', sales_collection, name='sales-collection'),
+    path('sales/monthly-summary/', sales_monthly_summary, name='sales-monthly-summary'),
     
     # Notificações
     path('notifications/', NotificationListCreateView.as_view(), name='notification-list-create'),

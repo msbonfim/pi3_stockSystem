@@ -4,16 +4,25 @@ import logging
 
 from rest_framework import generics, status
 from rest_framework.decorators import api_view
+from rest_framework.exceptions import ValidationError
 from rest_framework.response import Response
 from decimal import Decimal
 
+from django.db import transaction
 from django.db.models import Count, F, Q, Sum
 from django.db.models import DecimalField, ExpressionWrapper
 from django.db.models.functions import Coalesce
 from django.utils import timezone
 from datetime import timedelta, date
-from .models import Product, Category, Notification, PushSubscription
-from .serializers import ProductSerializer, CategorySerializer, NotificationSerializer, PushSubscriptionSerializer
+from .models import Category, Notification, Product, PushSubscription, Sale, SaleItem
+from .serializers import (
+    CategorySerializer,
+    NotificationSerializer,
+    ProductSerializer,
+    PushSubscriptionSerializer,
+    SaleCreateSerializer,
+    SaleSerializer,
+)
 
 logger = logging.getLogger(__name__)
 # django_q2 é importado como django_q
@@ -408,6 +417,92 @@ def metabase_analytics(request):
             {'error': f'Formato inesperado do Metabase: {e}'},
             status=502,
         )
+
+
+@api_view(['GET', 'POST'])
+def sales_collection(request):
+    """
+    GET: lista vendas recentes.
+    POST: registra venda e baixa estoque em transação.
+    """
+    if request.method == 'GET':
+        sales = Sale.objects.prefetch_related('items__product').order_by('-sold_at', '-id')[:100]
+        return Response(SaleSerializer(sales, many=True).data)
+
+    serializer = SaleCreateSerializer(data=request.data)
+    serializer.is_valid(raise_exception=True)
+    data = serializer.validated_data
+    sold_at = data.get('sold_at') or timezone.now()
+    notes = data.get('notes')
+    items_data = data['items']
+
+    try:
+        with transaction.atomic():
+            sale = Sale.objects.create(sold_at=sold_at, notes=notes, gross_revenue=Decimal('0'))
+            gross = Decimal('0')
+
+            for item in items_data:
+                product_id = item['product']
+                qty = int(item['quantity'])
+                unit_price = Decimal(item['unit_price'])
+
+                product = Product.objects.select_for_update().filter(id=product_id).first()
+                if not product:
+                    raise ValidationError({'items': [f'Produto {product_id} não encontrado.']})
+                if product.quantity < qty:
+                    raise ValidationError({'items': [f'Estoque insuficiente para "{product.name}". Disponível: {product.quantity}.']})
+
+                line_total = unit_price * qty
+                SaleItem.objects.create(
+                    sale=sale,
+                    product=product,
+                    quantity=qty,
+                    unit_price=unit_price,
+                    line_total=line_total,
+                )
+
+                product.quantity -= qty
+                product.save(update_fields=['quantity', 'updated_at'])
+                gross += line_total
+
+            sale.gross_revenue = gross
+            sale.save(update_fields=['gross_revenue'])
+
+    except ValidationError:
+        raise
+
+    sale = Sale.objects.prefetch_related('items__product').get(id=sale.id)
+    return Response(SaleSerializer(sale).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET'])
+def sales_monthly_summary(request):
+    """
+    Retorna vendidos por mês e receita bruta por mês.
+    Query params:
+      - year: int (default: ano atual)
+    """
+    year = int(request.query_params.get('year', date.today().year))
+    rows = (
+        SaleItem.objects.filter(sale__sold_at__year=year)
+        .values('sale__sold_at__year', 'sale__sold_at__month')
+        .annotate(
+            products_sold=Coalesce(Sum('quantity'), 0),
+            gross_revenue=Coalesce(Sum('line_total'), Decimal('0')),
+        )
+        .order_by('sale__sold_at__year', 'sale__sold_at__month')
+    )
+
+    result = []
+    for row in rows:
+        month = int(row['sale__sold_at__month'])
+        result.append({
+            'month': f'{year:04d}-{month:02d}',
+            'products_sold': int(row['products_sold'] or 0),
+            'gross_revenue': float(row['gross_revenue'] or 0),
+        })
+
+    return Response({'year': year, 'rows': result})
 
 
 # Views para Notificações
