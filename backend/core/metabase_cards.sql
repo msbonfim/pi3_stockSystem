@@ -1,4 +1,4 @@
--- SQL para criar 6 perguntas no Metabase (Native query → base sistema_gestao).
+-- SQL para criar perguntas no Metabase (Native query → base sistema_gestao).
 -- Guarde cada pergunta; o ID aparece na URL: /question/NUMERO
 -- Configure no Django (env):
 --   METABASE_URL=http://localhost:3000
@@ -7,6 +7,7 @@
 --   ou METABASE_API_KEY=... (Metabase Admin → API keys)
 --   METABASE_CARD_OVERVIEW=1
 --   METABASE_CARD_BY_CATEGORY=2
+--   METABASE_CARD_SALES_MONTHLY=7
 --   ... (um ID por pergunta)
 
 -- 1) METABASE_CARD_OVERVIEW — uma linha

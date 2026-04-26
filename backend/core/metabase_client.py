@@ -170,6 +170,7 @@ def infer_card_ids_from_collection(cards: list[dict]) -> dict:
         "low_stock": 0,
         "top_by_stock_value": 0,
         "expiration": 0,
+        "sales_monthly": 0,
     }
     for c in cards:
         cid = int(c.get("id") or 0)
@@ -191,5 +192,8 @@ def infer_card_ids_from_collection(cards: list[dict]) -> dict:
             continue
         if not out["expiration"] and _has_any(text, ["validade", "venc", "expir"]):
             out["expiration"] = cid
+            continue
+        if not out["sales_monthly"] and _has_any(text, ["vend", "receita", "fatur", "mensal", "mês", "mes"]):
+            out["sales_monthly"] = cid
             continue
     return out

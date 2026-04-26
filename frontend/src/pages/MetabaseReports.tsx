@@ -4,6 +4,8 @@ import {
   Bar,
   BarChart,
   Cell,
+  ComposedChart,
+  Line,
   Pie,
   PieChart,
   ResponsiveContainer,
@@ -30,6 +32,7 @@ type Payload = {
   low_stock: { id: number; name: string; quantity: number; price: number; category: string | null }[];
   top_by_stock_value: { id: number; name: string; line_value: number }[];
   expiration: { expired_count: number; next_7_days_count: number; next_30_days_count: number };
+  sales_monthly: { month: string; products_sold: number; gross_revenue: number }[];
   _meta?: AnalyticsMeta;
 };
 
@@ -186,6 +189,25 @@ export default function MetabaseReports() {
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
+              <Card>
+                <CardHeader><CardTitle>Produtos vendidos no mês vs receita bruta</CardTitle></CardHeader>
+                <CardContent className="h-[320px]">
+                  <ResponsiveContainer width="100%" height="100%">
+                    <ComposedChart data={data.sales_monthly || []} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
+                      <XAxis dataKey="month" />
+                      <YAxis yAxisId="qtd" width={44} />
+                      <YAxis yAxisId="money" orientation="right" tickFormatter={(v) => `R$ ${Number(v) / 1000}k`} width={66} />
+                      <Tooltip
+                        formatter={(v: number, name: string) =>
+                          name === "Receita bruta" ? money(v) : Number(v).toLocaleString("pt-BR")
+                        }
+                      />
+                      <Bar yAxisId="qtd" dataKey="products_sold" name="Produtos vendidos" fill="#06b6d4" radius={[4, 4, 0, 0]} />
+                      <Line yAxisId="money" type="monotone" dataKey="gross_revenue" name="Receita bruta" stroke="#16a34a" strokeWidth={2} dot />
+                    </ComposedChart>
+                  </ResponsiveContainer>
+                </CardContent>
+              </Card>
               <Card>
                 <CardHeader><CardTitle>Top valor</CardTitle></CardHeader>
                 <CardContent className="overflow-x-auto">

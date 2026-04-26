@@ -11,7 +11,7 @@ from decimal import Decimal
 from django.db import transaction
 from django.db.models import Count, F, Q, Sum
 from django.db.models import DecimalField, ExpressionWrapper
-from django.db.models.functions import Coalesce
+from django.db.models.functions import Coalesce, TruncMonth
 from django.utils import timezone
 from datetime import timedelta, date
 from .models import Category, Notification, Product, PushSubscription, Sale, SaleItem
@@ -227,6 +227,33 @@ def build_analytics_payload(request):
         ).count(),
     }
 
+    try:
+        year = int(request.query_params.get('year', today.year))
+    except (TypeError, ValueError):
+        year = today.year
+    sales_monthly = []
+    monthly_rows = (
+        SaleItem.objects.filter(sale__sold_at__year=year)
+        .annotate(month=TruncMonth('sale__sold_at'))
+        .values('month')
+        .annotate(
+            products_sold=Coalesce(Sum('quantity'), 0),
+            gross_revenue=Coalesce(Sum('line_total'), Decimal('0')),
+        )
+        .order_by('month')
+    )
+    for row in monthly_rows:
+        month = row.get('month')
+        if not month:
+            continue
+        sales_monthly.append(
+            {
+                'month': month.strftime('%Y-%m'),
+                'products_sold': int(row.get('products_sold') or 0),
+                'gross_revenue': float(row.get('gross_revenue') or 0),
+            }
+        )
+
     return {
         'overview': {
             'total_products': products.count(),
@@ -239,6 +266,7 @@ def build_analytics_payload(request):
         'low_stock_threshold': low_max,
         'top_by_stock_value': top_by_value,
         'expiration': expiring,
+        'sales_monthly': sales_monthly,
     }
 
 
@@ -391,6 +419,27 @@ def metabase_analytics(request):
             'next_30_days_count': int((er[2] if len(er) > 2 else 0) or 0),
         }
 
+        sales_monthly = []
+        sales_card_id = ids.get('sales_monthly')
+        if sales_card_id:
+            sales_data = run_card_query(session, base, sales_card_id)
+            for row in (sales_data.get('rows') or []):
+                raw_month = row[0] if len(row) > 0 else None
+                if hasattr(raw_month, 'strftime'):
+                    month = raw_month.strftime('%Y-%m')
+                elif isinstance(raw_month, str) and len(raw_month) >= 7:
+                    month = raw_month[:7]
+                else:
+                    continue
+                sales_monthly.append({
+                    'month': month,
+                    'products_sold': int((row[1] if len(row) > 1 else 0) or 0),
+                    'gross_revenue': float((row[2] if len(row) > 2 else 0) or 0),
+                })
+        else:
+            # Fallback: se não houver card mensal, usa agregação ORM.
+            sales_monthly = build_analytics_payload(request).get('sales_monthly', [])
+
         payload = {
             'overview': overview,
             'by_category': by_category,
@@ -399,6 +448,7 @@ def metabase_analytics(request):
             'low_stock_threshold': low_max,
             'top_by_stock_value': top_by_value,
             'expiration': expiring,
+            'sales_monthly': sales_monthly,
             '_meta': {
                 'source': 'metabase',
                 'note': 'Lista estoque baixo usa o limite fixo do SQL do card Metabase (ex.: 5).',

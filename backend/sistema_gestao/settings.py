@@ -306,6 +306,7 @@ METABASE_CARD_IDS = {
     "low_stock": _metabase_card_id("METABASE_CARD_LOW_STOCK"),
     "top_by_stock_value": _metabase_card_id("METABASE_CARD_TOP_VALUE"),
     "expiration": _metabase_card_id("METABASE_CARD_EXPIRATION"),
+    "sales_monthly": _metabase_card_id("METABASE_CARD_SALES_MONTHLY"),
 }
 
 # Opcional: nome da collection com as 6 perguntas (auto-descoberta de IDs).
