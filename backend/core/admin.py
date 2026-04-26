@@ -161,9 +161,9 @@ class PushSubscriptionAdmin(admin.ModelAdmin):
 
 class SaleItemInline(admin.TabularInline):
     model = SaleItem
-    extra = 0
-    readonly_fields = ('product', 'quantity', 'unit_price', 'line_total')
-    can_delete = False
+    extra = 1
+    autocomplete_fields = ('product',)
+    fields = ('product', 'quantity', 'unit_price', 'line_total')
 
 
 @admin.register(Sale)
@@ -172,6 +172,7 @@ class SaleAdmin(admin.ModelAdmin):
     list_filter = ('sold_at', 'created_at')
     search_fields = ('id', 'notes')
     readonly_fields = ('gross_revenue', 'created_at')
+    fields = ('sold_at', 'notes', 'gross_revenue', 'created_at')
     inlines = [SaleItemInline]
 
 

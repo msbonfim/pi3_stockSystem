@@ -8,6 +8,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import MetabaseReports from "./pages/MetabaseReports";
+import SalesPage from "./pages/Sales";
 import NotFound from "./pages/NotFound";
 import { pushNotificationService } from "./services/pushNotifications";
 import { AccessibilityProvider } from "./contexts/AccessibilityContext";
@@ -76,6 +77,7 @@ const App = () => {
             <Routes>
               <Route path="/" element={<Index />} />
               <Route path="/relatorios" element={<MetabaseReports />} />
+              <Route path="/vendas" element={<SalesPage />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

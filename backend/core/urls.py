@@ -11,6 +11,7 @@ from .views import (
     dashboard_analytics,
     metabase_analytics,
     sales_collection,
+    sale_detail,
     sales_monthly_summary,
     NotificationListCreateView,
     NotificationDetailView,
@@ -47,6 +48,7 @@ urlpatterns = [
     path('bi/summary/', dashboard_analytics, name='bi-summary'),
     path('metabase/analytics/', metabase_analytics, name='metabase-analytics'),
     path('sales/', sales_collection, name='sales-collection'),
+    path('sales/<int:sale_id>/', sale_detail, name='sale-detail'),
     path('sales/monthly-summary/', sales_monthly_summary, name='sales-monthly-summary'),
     
     # Notificações

@@ -436,43 +436,62 @@ def sales_collection(request):
     notes = data.get('notes')
     items_data = data['items']
 
-    try:
-        with transaction.atomic():
-            sale = Sale.objects.create(sold_at=sold_at, notes=notes, gross_revenue=Decimal('0'))
-            gross = Decimal('0')
+    with transaction.atomic():
+        sale = Sale.objects.create(sold_at=sold_at, notes=notes, gross_revenue=Decimal('0'))
+        gross = Decimal('0')
 
-            for item in items_data:
-                product_id = item['product']
-                qty = int(item['quantity'])
-                unit_price = Decimal(item['unit_price'])
+        for item in items_data:
+            product_id = item['product']
+            qty = int(item['quantity'])
+            unit_price = Decimal(item['unit_price'])
 
-                product = Product.objects.select_for_update().filter(id=product_id).first()
-                if not product:
-                    raise ValidationError({'items': [f'Produto {product_id} não encontrado.']})
-                if product.quantity < qty:
-                    raise ValidationError({'items': [f'Estoque insuficiente para "{product.name}". Disponível: {product.quantity}.']})
+            product = Product.objects.select_for_update().filter(id=product_id).first()
+            if not product:
+                raise ValidationError({'items': [f'Produto {product_id} não encontrado.']})
+            if product.quantity < qty:
+                raise ValidationError({'items': [f'Estoque insuficiente para "{product.name}". Disponível: {product.quantity}.']})
 
-                line_total = unit_price * qty
-                SaleItem.objects.create(
-                    sale=sale,
-                    product=product,
-                    quantity=qty,
-                    unit_price=unit_price,
-                    line_total=line_total,
-                )
+            line_total = unit_price * qty
+            SaleItem.objects.create(
+                sale=sale,
+                product=product,
+                quantity=qty,
+                unit_price=unit_price,
+                line_total=line_total,
+            )
 
-                product.quantity -= qty
-                product.save(update_fields=['quantity', 'updated_at'])
-                gross += line_total
+            product.quantity -= qty
+            product.save(update_fields=['quantity', 'updated_at'])
+            gross += line_total
 
-            sale.gross_revenue = gross
-            sale.save(update_fields=['gross_revenue'])
-
-    except ValidationError:
-        raise
+        sale.gross_revenue = gross
+        sale.save(update_fields=['gross_revenue'])
 
     sale = Sale.objects.prefetch_related('items__product').get(id=sale.id)
     return Response(SaleSerializer(sale).data, status=status.HTTP_201_CREATED)
+
+
+@api_view(['GET', 'DELETE'])
+def sale_detail(request, sale_id):
+    """
+    GET: detalhes da venda.
+    DELETE: estorna a venda (devolve itens ao estoque) e remove o registro.
+    """
+    sale = Sale.objects.prefetch_related('items__product').filter(id=sale_id).first()
+    if not sale:
+        return Response({'error': 'Venda não encontrada.'}, status=status.HTTP_404_NOT_FOUND)
+
+    if request.method == 'GET':
+        return Response(SaleSerializer(sale).data)
+
+    with transaction.atomic():
+        for item in sale.items.select_related('product').all():
+            product = Product.objects.select_for_update().get(id=item.product_id)
+            product.quantity += item.quantity
+            product.save(update_fields=['quantity', 'updated_at'])
+        sale.delete()
+
+    return Response(status=status.HTTP_204_NO_CONTENT)
 
 
 @api_view(['GET'])
@@ -482,7 +501,10 @@ def sales_monthly_summary(request):
     Query params:
       - year: int (default: ano atual)
     """
-    year = int(request.query_params.get('year', date.today().year))
+    try:
+        year = int(request.query_params.get('year', date.today().year))
+    except (TypeError, ValueError):
+        return Response({'error': 'Parâmetro year inválido.'}, status=status.HTTP_400_BAD_REQUEST)
     rows = (
         SaleItem.objects.filter(sale__sold_at__year=year)
         .values('sale__sold_at__year', 'sale__sold_at__month')
