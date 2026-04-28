@@ -122,23 +122,42 @@ def list_all_collections(session: requests.Session, base_url: str) -> list[dict]
     return body if isinstance(body, list) else []
 
 
-def find_collection_id_by_name(session: requests.Session, base_url: str, name: str) -> int:
+def find_collection_id_by_name(session: requests.Session, base_url: str, name: str) -> str | int:
+    """
+    Retorna o ID da collection (pode ser 'root' ou int).
+    Retorna 0 se não encontrada.
+    """
     wanted = _normalize(name)
     if not wanted:
         return 0
     for c in list_all_collections(session, base_url):
         if _normalize(c.get("name", "")) == wanted:
-            return int(c.get("id") or 0)
+            raw_id = c.get("id")
+            # 'root' é um id especial do Metabase (string)
+            if isinstance(raw_id, str):
+                return raw_id
+            try:
+                return int(raw_id)
+            except (TypeError, ValueError):
+                return 0
     return 0
 
 
-def list_collection_cards(session: requests.Session, base_url: str, collection_id: int) -> list[dict]:
-    if not collection_id:
+def list_collection_cards(session: requests.Session, base_url: str, collection_id: str | int) -> list[dict]:
+    if not collection_id and collection_id != "root":
         return []
-    r = session.get(f"{base_url.rstrip('/')}/api/collection/{collection_id}/items", timeout=45)
+    url = f"{base_url.rstrip('/')}/api/collection/{collection_id}/items"
+    r = session.get(url, timeout=45)
     if not r.ok:
         raise MetabaseError(f"Falha ao listar itens da collection {collection_id} ({r.status_code}).")
-    rows = r.json() if isinstance(r.json(), list) else []
+    body = r.json()
+    # Metabase retorna {"data": [...], "total": N, ...} — nunca uma lista raiz
+    if isinstance(body, dict):
+        rows = body.get("data") or []
+    elif isinstance(body, list):
+        rows = body
+    else:
+        rows = []
     cards: list[dict] = []
     for row in rows:
         model = _normalize(str(row.get("model", "")))

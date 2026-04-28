@@ -469,6 +469,133 @@ def metabase_analytics(request):
         )
 
 
+def _col_type(col: dict) -> str:
+    """Simplifica o tipo de coluna do Metabase em: string | number | date."""
+    base_type = str(col.get("base_type") or col.get("effective_type") or "")
+    if "Integer" in base_type or "Float" in base_type or "Decimal" in base_type or "BigInt" in base_type:
+        return "number"
+    if "DateTime" in base_type or "Date" in base_type or "Temporal" in base_type:
+        return "date"
+    return "string"
+
+
+def _infer_chart_type(cols: list[dict]) -> str:
+    """
+    Tenta sugerir o melhor tipo de gráfico para os dados.
+    Regras simples:
+      - 1 linha (KPI)  → metric
+      - date/str + number(s) → bar/line (usa 'bar')
+      - string + 1 number → pie se ≤ 8 categorias, senão bar
+      - resto → table
+    """
+    types = [_col_type(c) for c in cols]
+    n_num = types.count("number")
+    n_str = types.count("string")
+    n_date = types.count("date")
+
+    if n_date >= 1 and n_num >= 1:
+        return "line"
+    if n_str >= 1 and n_num >= 1:
+        return "bar"
+    if n_num == len(types) and len(types) <= 3:
+        return "metric"
+    return "table"
+
+
+@api_view(['GET'])
+def metabase_collection_cards(request):
+    """
+    Lista cards da collection e executa cada um retornando os dados prontos para render.
+    Query params:
+      - collection: nome da collection (opcional; usa METABASE_COLLECTION_NAME se ausente)
+    """
+    from django.conf import settings as dj_settings
+
+    from .metabase_client import (
+        MetabaseError,
+        _jsonify_cell,
+        find_collection_id_by_name,
+        get_metabase_session,
+        list_collection_cards,
+        run_card_query,
+    )
+
+    base = dj_settings.METABASE_URL.rstrip('/')
+    collection_name = (request.query_params.get('collection') or getattr(dj_settings, 'METABASE_COLLECTION_NAME', '')).strip()
+    if not collection_name:
+        return Response(
+            {
+                'error': 'Collection não informada.',
+                'hint': 'Defina METABASE_COLLECTION_NAME ou passe ?collection=NomeDaCollection',
+            },
+            status=status.HTTP_400_BAD_REQUEST,
+        )
+
+    try:
+        session = get_metabase_session()
+        cid = find_collection_id_by_name(session, base, collection_name)
+        if not cid:
+            return Response(
+                {'error': f'Collection "{collection_name}" não encontrada no Metabase.'},
+                status=status.HTTP_404_NOT_FOUND,
+            )
+        cards = list_collection_cards(session, base, cid)
+        cards = sorted(cards, key=lambda c: str(c.get('name') or '').lower())
+
+        result = []
+        for card in cards:
+            card_id = card.get('id')
+            if not card_id:
+                continue
+            try:
+                data = run_card_query(session, base, card_id)
+                cols = data.get('cols') or []
+                rows = data.get('rows') or []
+                col_names = [str(c.get('display_name') or c.get('name') or f'c{i}') for i, c in enumerate(cols)]
+                col_types = [_col_type(c) for c in cols]
+                chart_type = _infer_chart_type(cols)
+                # Converte rows em lista de dicts usando display_name como chave
+                rows_dicts = []
+                for row in rows:
+                    d = {}
+                    for i, val in enumerate(row):
+                        key = col_names[i] if i < len(col_names) else f'c{i}'
+                        d[key] = _jsonify_cell(val)
+                    rows_dicts.append(d)
+                # Para metric (KPI de 1 linha): pega os valores
+                metric_values = {}
+                if chart_type == 'metric' and rows:
+                    for i, name in enumerate(col_names):
+                        val = rows[0][i] if i < len(rows[0]) else None
+                        metric_values[name] = float(val) if val is not None else 0
+                result.append({
+                    'id': card_id,
+                    'name': card.get('name'),
+                    'description': card.get('description'),
+                    'chart_type': chart_type,
+                    'col_names': col_names,
+                    'col_types': col_types,
+                    'rows': rows_dicts,
+                    'metric_values': metric_values,
+                })
+            except MetabaseError as e:
+                result.append({
+                    'id': card_id,
+                    'name': card.get('name'),
+                    'error': str(e),
+                    'chart_type': 'error',
+                    'rows': [],
+                })
+
+        return Response({
+            'collection': {'id': str(cid), 'name': collection_name},
+            'count': len(result),
+            'cards': result,
+        })
+    except MetabaseError as e:
+        return Response({'error': str(e)}, status=502)
+
+
 @api_view(['GET', 'POST'])
 def sales_collection(request):
     """

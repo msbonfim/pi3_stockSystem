@@ -36,10 +36,26 @@ type Payload = {
   _meta?: AnalyticsMeta;
 };
 
+type AutoCard = {
+  id: number;
+  name: string;
+  description?: string;
+  chart_type: "bar" | "line" | "metric" | "table" | "error";
+  col_names: string[];
+  col_types: string[];
+  rows: Record<string, unknown>[];
+  metric_values: Record<string, number>;
+  error?: string;
+};
+
 const money = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
+const fmt = (v: unknown, colType?: string) => {
+  if (v === null || v === undefined) return "—";
+  if (colType === "number") return Number(v).toLocaleString("pt-BR");
+  return String(v);
+};
 const PIE_COLORS = ["#6366f1", "#16a34a", "#f59e0b", "#ef4444", "#06b6d4", "#8b5cf6", "#84cc16", "#f97316"];
 
-/** Barras horizontais: muitas marcas ficam ilegíveis na pizza; top N + "Outros". */
 const BRAND_BAR_TOP = 12;
 function brandBarsForChart(rows: { name: string; stock_value: number }[]) {
   const sorted = [...rows].sort((a, b) => b.stock_value - a.stock_value);
@@ -50,13 +66,80 @@ function brandBarsForChart(rows: { name: string; stock_value: number }[]) {
   return [...head, { name: `Outros (${tail.length} marcas)`, stock_value: others }];
 }
 
+function AutoCardChart({ card }: { card: AutoCard }) {
+  if (card.chart_type === "error")
+    return <p className="text-destructive text-sm">{card.error}</p>;
+
+  if (card.chart_type === "metric") {
+    return (
+      <div className="flex flex-wrap gap-6 pt-2">
+        {Object.entries(card.metric_values).map(([k, v]) => (
+          <div key={k}>
+            <p className="text-sm text-muted-foreground">{k}</p>
+            <p className="text-2xl font-bold">{Number(v).toLocaleString("pt-BR")}</p>
+          </div>
+        ))}
+      </div>
+    );
+  }
+
+  const strCol = card.col_names[card.col_types.indexOf("string")] || card.col_names[0];
+  const dateCol = card.col_names[card.col_types.indexOf("date")] || null;
+  const numCols = card.col_names.filter((_, i) => card.col_types[i] === "number");
+  const xKey = dateCol || strCol;
+
+  if (card.chart_type === "line" || card.chart_type === "bar") {
+    return (
+      <ResponsiveContainer width="100%" height="100%">
+        <BarChart data={card.rows} margin={{ top: 4, right: 8, left: 0, bottom: 4 }}>
+          <XAxis dataKey={xKey} tick={{ fontSize: 11 }} />
+          <YAxis tick={{ fontSize: 11 }} />
+          <Tooltip />
+          {numCols.map((col, i) => (
+            <Bar key={col} dataKey={col} fill={PIE_COLORS[i % PIE_COLORS.length]} radius={[4, 4, 0, 0]} />
+          ))}
+        </BarChart>
+      </ResponsiveContainer>
+    );
+  }
+
+  // table
+  return (
+    <div className="overflow-x-auto">
+      <Table>
+        <TableHeader>
+          <TableRow>
+            {card.col_names.map((c) => <TableHead key={c}>{c}</TableHead>)}
+          </TableRow>
+        </TableHeader>
+        <TableBody>
+          {card.rows.slice(0, 50).map((row, ri) => (
+            <TableRow key={ri}>
+              {card.col_names.map((c, ci) => (
+                <TableCell key={c}>{fmt(row[c], card.col_types[ci])}</TableCell>
+              ))}
+            </TableRow>
+          ))}
+          {card.rows.length === 0 && (
+            <TableRow><TableCell colSpan={card.col_names.length} className="text-muted-foreground">Sem dados.</TableCell></TableRow>
+          )}
+        </TableBody>
+      </Table>
+    </div>
+  );
+}
+
 export default function MetabaseReports() {
   const [data, setData] = useState<Payload | null>(null);
+  const [autoCards, setAutoCards] = useState<AutoCard[]>([]);
   const [loading, setLoading] = useState(true);
+  const [cardsLoading, setCardsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const [cardsError, setCardsError] = useState<string | null>(null);
 
   const metabaseUrl =
     (import.meta.env.VITE_METABASE_URL as string | undefined)?.replace(/\/$/, "") || "http://localhost:3000";
+  const metabaseCollection = (import.meta.env.VITE_METABASE_COLLECTION as string | undefined)?.trim();
 
   useEffect(() => {
     let cancel = false;
@@ -74,10 +157,31 @@ export default function MetabaseReports() {
         if (!cancel) setLoading(false);
       }
     })();
-    return () => {
-      cancel = true;
-    };
+    return () => { cancel = true; };
   }, []);
+
+  useEffect(() => {
+    let cancel = false;
+    (async () => {
+      try {
+        setCardsLoading(true);
+        setCardsError(null);
+        const query = metabaseCollection ? `?collection=${encodeURIComponent(metabaseCollection)}` : "";
+        const r = await fetch(`${API_BASE}/metabase/collection-cards/${query}`);
+        const json = await r.json();
+        if (!r.ok) {
+          if (!cancel) setCardsError(json?.error || `API ${r.status}`);
+          return;
+        }
+        if (!cancel) setAutoCards(Array.isArray(json?.cards) ? json.cards : []);
+      } catch {
+        if (!cancel) setCardsError("Falha ao carregar cards do Metabase.");
+      } finally {
+        if (!cancel) setCardsLoading(false);
+      }
+    })();
+    return () => { cancel = true; };
+  }, [metabaseCollection]);
 
   const brandChartRows = useMemo(() => (data ? brandBarsForChart(data.by_brand) : []), [data]);
 
@@ -86,17 +190,14 @@ export default function MetabaseReports() {
       <div className="mx-auto max-w-7xl space-y-6">
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div className="flex items-center gap-2">
-            <h1 className="text-3xl font-bold text-foreground">Análises no Frontend</h1>
+            <h1 className="text-3xl font-bold text-foreground">Análises</h1>
             <Badge className="bg-blue-600 hover:bg-blue-600">Fonte: Metabase</Badge>
           </div>
           <div className="flex gap-2">
-            <Button variant="outline" asChild>
-              <Link to="/">Voltar</Link>
-            </Button>
+            <Button variant="outline" asChild><Link to="/">Voltar</Link></Button>
             <Button variant="outline" asChild>
               <a href={metabaseUrl} target="_blank" rel="noreferrer">
-                <ExternalLink className="mr-2 h-4 w-4" />
-                Metabase
+                <ExternalLink className="mr-2 h-4 w-4" />Metabase
               </a>
             </Button>
           </div>
@@ -116,15 +217,14 @@ export default function MetabaseReports() {
             <Loader2 className="h-6 w-6 animate-spin" /> Carregando...
           </div>
         )}
-
         {error && <Card><CardContent className="pt-6 text-destructive">{error}</CardContent></Card>}
 
         {!loading && data && (
           <>
             <div className="grid gap-4 md:grid-cols-3">
-              <Card><CardHeader><CardTitle>Total produtos</CardTitle></CardHeader><CardContent>{data.overview.total_products}</CardContent></Card>
-              <Card><CardHeader><CardTitle>Unidades</CardTitle></CardHeader><CardContent>{data.overview.total_units}</CardContent></Card>
-              <Card><CardHeader><CardTitle>Valor estoque</CardTitle></CardHeader><CardContent>{money(data.overview.total_stock_value)}</CardContent></Card>
+              <Card><CardHeader><CardTitle>Total produtos</CardTitle></CardHeader><CardContent className="text-2xl font-bold">{data.overview.total_products}</CardContent></Card>
+              <Card><CardHeader><CardTitle>Unidades</CardTitle></CardHeader><CardContent className="text-2xl font-bold">{data.overview.total_units}</CardContent></Card>
+              <Card><CardHeader><CardTitle>Valor estoque</CardTitle></CardHeader><CardContent className="text-2xl font-bold">{money(data.overview.total_stock_value)}</CardContent></Card>
             </div>
 
             <div className="grid gap-4 lg:grid-cols-2">
@@ -143,43 +243,17 @@ export default function MetabaseReports() {
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
+
               <Card>
                 <CardHeader>
                   <CardTitle>Por marca</CardTitle>
-                  <p className="text-sm font-normal text-muted-foreground">
-                    Barras horizontais (top {BRAND_BAR_TOP} + outros agrupados)
-                  </p>
+                  <p className="text-sm font-normal text-muted-foreground">Top {BRAND_BAR_TOP} + outros agrupados</p>
                 </CardHeader>
-                <CardContent
-                  className="min-h-[280px]"
-                  style={{
-                    height: Math.min(520, Math.max(280, brandChartRows.length * 36 + 72)),
-                  }}
-                >
+                <CardContent className="min-h-[280px]" style={{ height: Math.min(520, Math.max(280, brandChartRows.length * 36 + 72)) }}>
                   <ResponsiveContainer width="100%" height="100%">
-                    <BarChart
-                      layout="vertical"
-                      data={brandChartRows}
-                      margin={{ top: 4, right: 12, left: 4, bottom: 4 }}
-                    >
-                      <XAxis
-                        type="number"
-                        tickFormatter={(v) =>
-                          typeof v === "number" && v >= 1_000_000
-                            ? `${(v / 1_000_000).toFixed(1)}M`
-                            : typeof v === "number" && v >= 1000
-                              ? `${(v / 1000).toFixed(0)}k`
-                              : String(v)
-                        }
-                        fontSize={11}
-                      />
-                      <YAxis
-                        type="category"
-                        dataKey="name"
-                        width={112}
-                        tick={{ fontSize: 11 }}
-                        interval={0}
-                      />
+                    <BarChart layout="vertical" data={brandChartRows} margin={{ top: 4, right: 12, left: 4, bottom: 4 }}>
+                      <XAxis type="number" tickFormatter={(v) => typeof v === "number" && v >= 1000 ? `${(v / 1000).toFixed(0)}k` : String(v)} fontSize={11} />
+                      <YAxis type="category" dataKey="name" width={112} tick={{ fontSize: 11 }} interval={0} />
                       <Tooltip formatter={(v: number) => money(v)} labelFormatter={(l) => String(l)} />
                       <Bar dataKey="stock_value" fill="#6366f1" radius={[0, 4, 4, 0]} />
                     </BarChart>
@@ -196,20 +270,17 @@ export default function MetabaseReports() {
                     <ComposedChart data={data.sales_monthly || []} margin={{ top: 8, right: 12, left: 12, bottom: 8 }}>
                       <XAxis dataKey="month" />
                       <YAxis yAxisId="qtd" width={44} />
-                      <YAxis yAxisId="money" orientation="right" tickFormatter={(v) => `R$ ${Number(v) / 1000}k`} width={66} />
-                      <Tooltip
-                        formatter={(v: number, name: string) =>
-                          name === "Receita bruta" ? money(v) : Number(v).toLocaleString("pt-BR")
-                        }
-                      />
+                      <YAxis yAxisId="money" orientation="right" tickFormatter={(v) => `${(Number(v) / 1000).toFixed(0)}k`} width={56} />
+                      <Tooltip formatter={(v: number, name: string) => name === "Receita bruta" ? money(v) : Number(v).toLocaleString("pt-BR")} />
                       <Bar yAxisId="qtd" dataKey="products_sold" name="Produtos vendidos" fill="#06b6d4" radius={[4, 4, 0, 0]} />
                       <Line yAxisId="money" type="monotone" dataKey="gross_revenue" name="Receita bruta" stroke="#16a34a" strokeWidth={2} dot />
                     </ComposedChart>
                   </ResponsiveContainer>
                 </CardContent>
               </Card>
+
               <Card>
-                <CardHeader><CardTitle>Top valor</CardTitle></CardHeader>
+                <CardHeader><CardTitle>Top valor em estoque</CardTitle></CardHeader>
                 <CardContent className="overflow-x-auto">
                   <Table>
                     <TableHeader><TableRow><TableHead>Produto</TableHead><TableHead className="text-right">Valor</TableHead></TableRow></TableHeader>
@@ -221,6 +292,7 @@ export default function MetabaseReports() {
                   </Table>
                 </CardContent>
               </Card>
+
               <Card>
                 <CardHeader><CardTitle>Estoque baixo</CardTitle></CardHeader>
                 <CardContent className="overflow-x-auto">
@@ -234,6 +306,49 @@ export default function MetabaseReports() {
                   </Table>
                 </CardContent>
               </Card>
+            </div>
+
+            {/* Cards automáticos da collection do Metabase */}
+            <div>
+              <h2 className="mb-4 text-xl font-semibold">
+                Cards da collection
+                {!cardsLoading && !cardsError && autoCards.length > 0 && (
+                  <span className="ml-2 text-sm font-normal text-muted-foreground">({autoCards.length} cards)</span>
+                )}
+              </h2>
+
+              {cardsLoading && (
+                <div className="flex items-center gap-2 text-muted-foreground">
+                  <Loader2 className="h-4 w-4 animate-spin" /> Carregando cards do Metabase...
+                </div>
+              )}
+              {cardsError && (
+                <Card><CardContent className="pt-4 text-destructive">{cardsError}</CardContent></Card>
+              )}
+              {!cardsLoading && !cardsError && autoCards.length === 0 && (
+                <Card>
+                  <CardContent className="pt-4 text-muted-foreground">
+                    Nenhum card encontrado. Defina <code>METABASE_COLLECTION_NAME</code> no <code>backend/.env</code>.
+                  </CardContent>
+                </Card>
+              )}
+              {!cardsLoading && !cardsError && autoCards.length > 0 && (
+                <div className="grid gap-4 lg:grid-cols-2">
+                  {autoCards.map((card) => (
+                    <Card key={`auto-${card.id}`}>
+                      <CardHeader>
+                        <CardTitle className="text-base">{card.name}</CardTitle>
+                        {card.description && (
+                          <p className="text-sm text-muted-foreground">{card.description}</p>
+                        )}
+                      </CardHeader>
+                      <CardContent className={card.chart_type === "table" || card.chart_type === "metric" ? "" : "h-[300px]"}>
+                        <AutoCardChart card={card} />
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
             </div>
           </>
         )}
