@@ -457,10 +457,13 @@ def metabase_analytics(request):
         return Response(payload)
 
     except MetabaseError as e:
-        return Response(
-            {'error': str(e), '_meta': {'source': 'error', 'hint': 'Ver IDs dos cards e SQL em core/metabase_cards.sql'}},
-            status=502,
-        )
+        payload = build_analytics_payload(request)
+        payload['_meta'] = {
+            'source': 'django_orm',
+            'reason': 'metabase_query_error',
+            'hint': f'{e}. Ver IDs dos cards e SQL em core/metabase_cards.sql',
+        }
+        return Response(payload)
     except (KeyError, TypeError, ValueError) as e:
         logger.exception('metabase_analytics parse error')
         return Response(

@@ -6,6 +6,7 @@ Usado pelo Django para o frontend receber dados calculados no Metabase.
 from __future__ import annotations
 
 import logging
+import re
 from datetime import date, datetime
 from decimal import Decimal
 from typing import Any
@@ -130,6 +131,22 @@ def find_collection_id_by_name(session: requests.Session, base_url: str, name: s
     wanted = _normalize(name)
     if not wanted:
         return 0
+
+    # Aceita ID direto ("4"), root, ou URL do Metabase:
+    # - http://localhost:3000/collection/4-admin-...
+    # - /collection/4-admin-...
+    # - /collection/root
+    if wanted == "root":
+        return "root"
+    if wanted.isdigit():
+        return int(wanted)
+    url_match = re.search(r"/collection/(root|\d+)", wanted)
+    if url_match:
+        raw = url_match.group(1)
+        if raw == "root":
+            return "root"
+        return int(raw)
+
     for c in list_all_collections(session, base_url):
         if _normalize(c.get("name", "")) == wanted:
             raw_id = c.get("id")
