@@ -482,10 +482,11 @@ def _col_type(col: dict) -> str:
     return "string"
 
 
-def _infer_chart_type(cols: list[dict]) -> str:
+def _infer_chart_type(cols: list[dict], card_name: str = "") -> str:
     """
     Tenta sugerir o melhor tipo de gráfico para os dados.
     Regras simples:
+      - Card de estoque baixo (nome) → scatter (nome x preço, bolha = quantidade)
       - 1 linha (KPI)  → metric
       - date/str + number(s) → bar/line (usa 'bar')
       - string + 1 number → pie se ≤ 8 categorias, senão bar
@@ -495,6 +496,46 @@ def _infer_chart_type(cols: list[dict]) -> str:
     n_num = types.count("number")
     n_str = types.count("string")
     n_date = types.count("date")
+
+    lower = (card_name or "").lower()
+    # Cobertura por categoria: bolha = itens estoque baixo, X = categoria, Y = total na categoria
+    if (
+        ("cobertura" in lower and "categoria" in lower)
+        or ("cobertura de estoque baixo" in lower)
+    ):
+        if n_num >= 2 and n_str >= 1:
+            return "scatter"
+    if any(k in lower for k in ("baixo estoque", "estoque baixo", "low stock")):
+        if n_num >= 2 and n_str >= 1:
+            return "scatter"
+
+    # Estoque por categoria (quantidade e valor): combo barras + linha (inalterado no frontend)
+    if (
+        ("estoque por categoria" in lower)
+        or (
+            "estoque" in lower
+            and "categoria" in lower
+            and ("quantidade" in lower or "valor" in lower)
+        )
+    ) and "cobertura" not in lower:
+        if n_num >= 3 and n_str >= 1:
+            return "combo_category_stock"
+
+    # "POR CATEGORIA" (título curto, sem o bloco "estoque… quantidade/valor"): pizza dupla, fatias ∝ qtd produtos
+    if (
+        "por categoria" in lower
+        and "cobertura" not in lower
+        and not (
+            ("estoque por categoria" in lower)
+            or (
+                "estoque" in lower
+                and "categoria" in lower
+                and ("quantidade" in lower or "valor" in lower)
+            )
+        )
+    ):
+        if n_num >= 2 and n_str >= 1:
+            return "nested_pie_equal_category"
 
     if n_date >= 1 and n_num >= 1:
         return "line"
@@ -556,7 +597,7 @@ def metabase_collection_cards(request):
                 rows = data.get('rows') or []
                 col_names = [str(c.get('display_name') or c.get('name') or f'c{i}') for i, c in enumerate(cols)]
                 col_types = [_col_type(c) for c in cols]
-                chart_type = _infer_chart_type(cols)
+                chart_type = _infer_chart_type(cols, str(card.get('name') or ''))
                 # Converte rows em lista de dicts usando display_name como chave
                 rows_dicts = []
                 for row in rows:
