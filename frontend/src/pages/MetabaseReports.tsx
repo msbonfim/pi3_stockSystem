@@ -1,4 +1,4 @@
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useLayoutEffect, useMemo, useRef, useState } from "react";
 import { Link } from "react-router-dom";
 import {
   Bar,
@@ -41,7 +41,9 @@ type AutoCard = {
     | "error"
     | "scatter"
     | "combo_category_stock"
-    | "nested_pie_equal_category";
+    | "nested_pie_equal_category"
+    | "nested_pie_equal_brand"
+    | "nested_pie_high_values";
   col_names: string[];
   col_types: string[];
   rows: Record<string, unknown>[];
@@ -81,6 +83,13 @@ function topSummarySortOrder(name: string): number {
   return i === -1 ? 999 : TOP_SUMMARY_MATCHERS[i].order;
 }
 
+function gridCardSortOrder(name: string): number {
+  const n = norm(name);
+  if (n.includes("estoque por categoria") && n.includes("quantidade") && n.includes("valor")) return 0;
+  if (n.includes("produtos vendidos") && n.includes("receita bruta")) return 1;
+  return 999;
+}
+
 function partitionReportCards(cards: AutoCard[]): {
   topSummaryCards: AutoCard[];
   gridCards: AutoCard[];
@@ -94,6 +103,7 @@ function partitionReportCards(cards: AutoCard[]): {
   topSummaryCards.sort(
     (a, b) => topSummarySortOrder(a.name || "") - topSummarySortOrder(b.name || ""),
   );
+  gridCards.sort((a, b) => gridCardSortOrder(a.name || "") - gridCardSortOrder(b.name || ""));
   return { topSummaryCards, gridCards };
 }
 
@@ -240,6 +250,12 @@ type ComboCategoryRow = {
   valor_estoque: number;
 };
 
+type SalesRevenueRow = {
+  label: string;
+  produtos_vendidos: number;
+  receita_bruta: number;
+};
+
 /** SQL típico: categoria, total_produtos, total_unidades, valor_estoque — combo: barra = contagem (product_count); linha = valor (stock_value) */
 function resolveComboCategoryStockKeys(
   card: AutoCard,
@@ -316,33 +332,125 @@ function buildComboCategoryStockRows(card: AutoCard): ComboCategoryRow[] | null 
   return out;
 }
 
-/** Card só “POR CATEGORIA”: pizza dupla; ângulo das fatias ∝ product_count (como no Metabase); rótulo externo = valor estoque. */
-type NestedPieCategoryRow = {
-  categoria: string;
+function resolveSalesRevenueMonthKeys(
+  card: AutoCard,
+): { labelKey: string; soldKey: string; revenueKey: string } | null {
+  const title = norm(card.name || "");
+  const isSalesRevenueMonthCard =
+    title.includes("produtos vendidos") && title.includes("receita bruta");
+  if (!isSalesRevenueMonthCard) return null;
+
+  const { col_names: names, col_types: types } = card;
+  if (!names.length) return null;
+
+  let labelKey = "";
+  for (let i = 0; i < names.length; i++) {
+    if (types[i] === "date") {
+      labelKey = names[i];
+      break;
+    }
+  }
+  if (!labelKey) {
+    const idx = types.indexOf("string");
+    if (idx >= 0) labelKey = names[idx];
+  }
+  if (!labelKey) labelKey = names[0];
+
+  let soldKey = "";
+  let revenueKey = "";
+  for (let i = 0; i < names.length; i++) {
+    if (types[i] !== "number") continue;
+    const n = norm(names[i]);
+    if (
+      n.includes("produtos_vendidos")
+      || (n.includes("produto") && n.includes("vendid"))
+      || n.includes("itens_vendidos")
+      || n.includes("qtd_vendida")
+    )
+      soldKey = names[i];
+    if (
+      n.includes("receita_bruta")
+      || (n.includes("receita") && n.includes("bruta"))
+      || n.includes("faturamento")
+      || n.includes("valor_vendas")
+    )
+      revenueKey = names[i];
+  }
+
+  if (!soldKey || !revenueKey) {
+    const numericCols = names.filter((_, i) => types[i] === "number");
+    if (numericCols.length >= 2) {
+      if (!soldKey) soldKey = numericCols[0];
+      if (!revenueKey) revenueKey = numericCols[1];
+    }
+  }
+  if (!soldKey || !revenueKey || soldKey === revenueKey) return null;
+  return { labelKey, soldKey, revenueKey };
+}
+
+function buildSalesRevenueMonthRows(card: AutoCard): SalesRevenueRow[] | null {
+  const keys = resolveSalesRevenueMonthKeys(card);
+  if (!keys) return null;
+  const out: SalesRevenueRow[] = [];
+  for (const row of card.rows) {
+    const label = String(row[keys.labelKey] ?? "");
+    const produtos_vendidos = Number(row[keys.soldKey]);
+    const receita_bruta = Number(row[keys.revenueKey]);
+    if (!Number.isFinite(produtos_vendidos) || !Number.isFinite(receita_bruta)) continue;
+    out.push({
+      label: label || "—",
+      produtos_vendidos,
+      receita_bruta,
+    });
+  }
+  return out.length ? out : null;
+}
+
+/** Pizza dupla (por categoria ou por marca): fatias ∝ product_count; rótulo externo = valor estoque. */
+type NestedPieRingRow = {
+  segment: string;
   product_count: number;
   stock_value: number;
 };
 
-function resolveNestedPieByCategoryKeys(
+function resolveNestedPieRingKeys(
   card: AutoCard,
-): { catKey: string; countKey: string; valueKey: string } | null {
+  mode: "category" | "brand",
+): { labelKey: string; countKey: string; valueKey: string } | null {
   const { col_names: names, col_types: types } = card;
   if (!names.length) return null;
 
-  let catKey = "";
-  for (let i = 0; i < names.length; i++) {
-    if (types[i] !== "string") continue;
-    const n = norm(names[i]);
-    if (n.includes("categoria") || n.includes("category") || n === "name" || n.includes("nome")) {
-      catKey = names[i];
-      break;
+  let labelKey = "";
+  if (mode === "category") {
+    for (let i = 0; i < names.length; i++) {
+      if (types[i] !== "string") continue;
+      const n = norm(names[i]);
+      if (n.includes("categoria") || n.includes("category") || n === "name" || n.includes("nome")) {
+        labelKey = names[i];
+        break;
+      }
+    }
+  } else {
+    for (let i = 0; i < names.length; i++) {
+      if (types[i] !== "string") continue;
+      const n = norm(names[i]);
+      if (n.includes("marca") || n.includes("brand") || n.includes("fabricante")) {
+        labelKey = names[i];
+        break;
+      }
     }
   }
-  if (!catKey) {
+  if (!labelKey) {
     const idx = types.indexOf("string");
-    if (idx >= 0) catKey = names[idx];
+    const title = norm(card.name || "");
+    if (
+      idx >= 0
+      && ((mode === "category" && title.includes("por categoria"))
+        || (mode === "brand" && title.includes("por marca")))
+    )
+      labelKey = names[idx];
   }
-  if (!catKey) return null;
+  if (!labelKey) return null;
 
   let countKey = "";
   let valueKey = "";
@@ -367,7 +475,10 @@ function resolveNestedPieByCategoryKeys(
   const numCols = names.filter((_, i) => types[i] === "number");
   const title = norm(card.name || "");
   if (!countKey || !valueKey) {
-    if (title.includes("por categoria") && !title.includes("estoque") && numCols.length >= 2) {
+    const titleOk =
+      (mode === "category" && title.includes("por categoria") && !title.includes("estoque"))
+      || (mode === "brand" && title.includes("por marca"));
+    if (titleOk && numCols.length >= 2) {
       if (numCols.length === 2) {
         countKey = numCols[0];
         valueKey = numCols[1];
@@ -378,25 +489,351 @@ function resolveNestedPieByCategoryKeys(
     }
   }
   if (!countKey || !valueKey || countKey === valueKey) return null;
-  return { catKey, countKey, valueKey };
+  return { labelKey, countKey, valueKey };
 }
 
-function buildNestedPieByCategoryRows(card: AutoCard): NestedPieCategoryRow[] | null {
-  const keys = resolveNestedPieByCategoryKeys(card);
+function buildNestedPieRingRows(card: AutoCard, mode: "category" | "brand"): NestedPieRingRow[] | null {
+  const keys = resolveNestedPieRingKeys(card, mode);
   if (!keys) return null;
-  const out: NestedPieCategoryRow[] = [];
+  const out: NestedPieRingRow[] = [];
   for (const row of card.rows) {
-    const categoria = String(row[keys.catKey] ?? "");
+    const segment = String(row[keys.labelKey] ?? "");
     const product_count = Number(row[keys.countKey]);
     const stock_value = Number(row[keys.valueKey]);
     if (!Number.isFinite(product_count) || !Number.isFinite(stock_value)) continue;
     out.push({
-      categoria: categoria || "—",
+      segment: segment || "—",
       product_count,
       stock_value,
     });
   }
   return out.length ? out : null;
+}
+
+/** Card "Valores mais altos": produto + preço; ambos os anéis ∝ preço; rótulos interno = nome, externo = valor. */
+type NestedPieHighValueRow = {
+  segment: string;
+  preco: number;
+};
+
+function resolveHighValuesPieKeys(card: AutoCard): { nameKey: string; priceKey: string } | null {
+  const { col_names: names, col_types: types } = card;
+  if (!names.length) return null;
+
+  let nameKey = "";
+  for (let i = 0; i < names.length; i++) {
+    if (types[i] !== "string") continue;
+    const n = norm(names[i]);
+    if (
+      n.includes("produto")
+      || n.includes("nome")
+      || n.includes("name")
+      || n.includes("item")
+      || n.includes("titulo")
+    ) {
+      nameKey = names[i];
+      break;
+    }
+  }
+  if (!nameKey) {
+    const idx = types.indexOf("string");
+    if (idx >= 0) nameKey = names[idx];
+  }
+  if (!nameKey) return null;
+
+  let priceKey = "";
+  for (let i = 0; i < names.length; i++) {
+    if (types[i] !== "number") continue;
+    const n = norm(names[i]);
+    if (n.includes("quantidade") || n.includes("qty") || n.includes("qtd")) continue;
+    if (
+      n.includes("preco")
+      || n.includes("price")
+      || n === "valor"
+      || (n.includes("valor") && !n.includes("estoque") && !n.includes("stock"))
+    )
+      priceKey = names[i];
+  }
+  if (!priceKey) {
+    const nums = names.filter((_, i) => types[i] === "number");
+    if (nums.length === 1) priceKey = nums[0];
+    else if (nums.length >= 2)
+      priceKey =
+        nums.find((k) => {
+          const n = norm(k);
+          return n.includes("preco") || n.includes("price") || n.includes("valor");
+        }) || nums[0];
+  }
+  if (!priceKey) return null;
+  return { nameKey, priceKey };
+}
+
+function buildHighValuesPieRows(card: AutoCard): NestedPieHighValueRow[] | null {
+  const keys = resolveHighValuesPieKeys(card);
+  if (!keys) return null;
+  const out: NestedPieHighValueRow[] = [];
+  for (const row of card.rows) {
+    const segment = String(row[keys.nameKey] ?? "");
+    const preco = Number(row[keys.priceKey]);
+    if (!Number.isFinite(preco)) continue;
+    out.push({ segment: segment || "—", preco });
+  }
+  return out.length ? out : null;
+}
+
+/** Pizza dupla (valores mais altos): centro = soma dos preços exibidos. */
+function NestedDoublePieHighValuesChart({ rows }: { rows: NestedPieHighValueRow[] }) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState({ w: 0, h: 0 });
+
+  useLayoutEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const measure = () => {
+      const r = el.getBoundingClientRect();
+      setBox({ w: Math.round(r.width), h: Math.round(r.height) });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const margin = 8;
+  const chartW = box.w;
+  const chartH = box.h;
+  const offsetW = Math.max(chartW - margin * 2, 0);
+  const offsetH = Math.max(chartH - margin * 2, 0);
+  const maxPieR = Math.min(offsetW, offsetH) / 2;
+
+  const truncateLabel = (s: string, max = 14) => {
+    const t = String(s);
+    return t.length > max ? `${t.slice(0, max)}…` : t;
+  };
+
+  const pieAngleProps = { startAngle: 90, endAngle: 450, paddingAngle: 0, minAngle: 0, isAnimationActive: false };
+
+  const hole = maxPieR * 0.22;
+  const ringW = maxPieR * 0.22;
+  const gap = maxPieR * 0.02;
+  const rInnerIn = hole;
+  const rInnerOut = hole + ringW;
+  const rOuterIn = rInnerOut + gap;
+  const rOuterOut = rOuterIn + ringW;
+
+  const totalPreco = rows.reduce((s, r) => s + r.preco, 0);
+  const maxOuterLabels = 8;
+
+  return (
+    <div ref={wrapRef} className="relative h-full min-h-[300px] w-full">
+      {chartW > 32 && chartH > 32 && maxPieR > 8 ? (
+        <PieChart width={chartW} height={chartH} margin={{ top: margin, right: margin, bottom: margin, left: margin }}>
+          <Tooltip
+            content={({ active, payload }) => {
+              if (!active || !payload?.[0]) return null;
+              const row = payload[0].payload as NestedPieHighValueRow;
+              const seg = row.segment ?? String(payload[0].name ?? "");
+              return (
+                <div className="rounded-md border border-border bg-background px-2 py-1.5 text-xs shadow-md">
+                  <p className="font-medium text-foreground">{seg}</p>
+                  <p className="text-muted-foreground">Preço: {money(Number(row.preco))}</p>
+                </div>
+              );
+            }}
+          />
+          <Pie
+            {...pieAngleProps}
+            data={rows}
+            dataKey="preco"
+            nameKey="segment"
+            cx="50%"
+            cy="50%"
+            innerRadius={rInnerIn}
+            outerRadius={rInnerOut}
+            labelLine={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 0.5 }}
+            label={() => ""}
+          >
+            {rows.map((_, i) => (
+              <Cell
+                key={`hv-in-${i}`}
+                fill={PIE_COLORS[i % PIE_COLORS.length]}
+                stroke="hsl(var(--background))"
+                strokeWidth={1}
+              />
+            ))}
+          </Pie>
+          <Pie
+            {...pieAngleProps}
+            data={rows}
+            dataKey="preco"
+            nameKey="segment"
+            cx="50%"
+            cy="50%"
+            innerRadius={rOuterIn}
+            outerRadius={rOuterOut}
+            labelLine={false}
+            label={(props: { payload?: NestedPieHighValueRow; index?: number }) => {
+              if ((props.index ?? 999) >= maxOuterLabels) return "";
+              const v = props.payload?.preco;
+              return v != null && Number.isFinite(Number(v)) ? money(Number(v)) : "";
+            }}
+          >
+            {rows.map((_, i) => (
+              <Cell
+                key={`hv-out-${i}`}
+                fill={PIE_COLORS[i % PIE_COLORS.length]}
+                stroke="hsl(var(--background))"
+                strokeWidth={1}
+              />
+            ))}
+          </Pie>
+        </PieChart>
+      ) : null}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex max-w-[36%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center text-center">
+        <span className="text-lg font-bold tabular-nums leading-tight text-foreground sm:text-xl">
+          {money(totalPreco)}
+        </span>
+        <span className="text-xs text-muted-foreground">soma (exibidos)</span>
+      </div>
+    </div>
+  );
+}
+
+/** Pizza dupla: espessura radial idêntica em px (base = maxPieRadius do Recharts, área útil após margin). */
+function NestedDoublePieChart({
+  rows,
+  isBrandPie,
+  innerDataKey,
+  outerDataKey,
+  totalProdutosSum,
+}: {
+  rows: NestedPieRingRow[];
+  isBrandPie: boolean;
+  innerDataKey: "stock_value" | "product_count";
+  outerDataKey: "product_count";
+  totalProdutosSum: number;
+}) {
+  const wrapRef = useRef<HTMLDivElement>(null);
+  const [box, setBox] = useState({ w: 0, h: 0 });
+
+  useLayoutEffect(() => {
+    const el = wrapRef.current;
+    if (!el) return;
+    const measure = () => {
+      const r = el.getBoundingClientRect();
+      setBox({ w: Math.round(r.width), h: Math.round(r.height) });
+    };
+    measure();
+    const ro = new ResizeObserver(measure);
+    ro.observe(el);
+    return () => ro.disconnect();
+  }, []);
+
+  const margin = 8;
+  const chartW = box.w;
+  const chartH = box.h;
+  const offsetW = Math.max(chartW - margin * 2, 0);
+  const offsetH = Math.max(chartH - margin * 2, 0);
+  /* Igual a Recharts parseCoordinateOfPie: maxPieRadius = min(offset.width, offset.height) / 2 */
+  const maxPieR = Math.min(offsetW, offsetH) / 2;
+
+  const truncateLabel = (s: string, max = 14) => {
+    const t = String(s);
+    return t.length > max ? `${t.slice(0, max)}…` : t;
+  };
+
+  const pieAngleProps = { startAngle: 90, endAngle: 450, paddingAngle: 0, minAngle: 0, isAnimationActive: false };
+
+  const hole = maxPieR * 0.22;
+  const ringW = maxPieR * 0.22;
+  const gap = maxPieR * 0.02;
+  const rInnerIn = hole;
+  const rInnerOut = hole + ringW;
+  const rOuterIn = rInnerOut + gap;
+  const rOuterOut = rOuterIn + ringW;
+
+  return (
+    <div ref={wrapRef} className="relative h-full min-h-[300px] w-full">
+      {chartW > 32 && chartH > 32 && maxPieR > 8 ? (
+        <PieChart width={chartW} height={chartH} margin={{ top: margin, right: margin, bottom: margin, left: margin }}>
+          <Tooltip
+            content={({ active, payload }) => {
+              if (!active || !payload?.[0]) return null;
+              const row = payload[0].payload as NestedPieRingRow;
+              const seg = row.segment ?? String(payload[0].name ?? "");
+              return (
+                <div className="rounded-md border border-border bg-background px-2 py-1.5 text-xs shadow-md">
+                  <p className="font-medium text-foreground">{seg}</p>
+                  <p className="text-muted-foreground">
+                    Produtos: {Number(row.product_count).toLocaleString("pt-BR")}
+                  </p>
+                  <p className="text-muted-foreground">Valor estoque: {money(Number(row.stock_value))}</p>
+                </div>
+              );
+            }}
+          />
+          <Pie
+            {...pieAngleProps}
+            data={rows}
+            dataKey={innerDataKey}
+            nameKey="segment"
+            cx="50%"
+            cy="50%"
+            innerRadius={rInnerIn}
+            outerRadius={rInnerOut}
+            labelLine={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 0.5 }}
+            label={() => ""}
+          >
+            {rows.map((_, i) => (
+              <Cell
+                key={`np-in-${i}`}
+                fill={PIE_COLORS[i % PIE_COLORS.length]}
+                stroke="hsl(var(--background))"
+                strokeWidth={1}
+              />
+            ))}
+          </Pie>
+          <Pie
+            {...pieAngleProps}
+            data={rows}
+            dataKey={outerDataKey}
+            nameKey="segment"
+            cx="50%"
+            cy="50%"
+            innerRadius={rOuterIn}
+            outerRadius={rOuterOut}
+            labelLine={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 0.5 }}
+            label={
+              isBrandPie
+                ? (props: { payload?: NestedPieRingRow }) => {
+                    const n = props.payload?.product_count;
+                    return n != null && Number.isFinite(Number(n)) ? Number(n).toLocaleString("pt-BR") : "";
+                  }
+                : (props: { payload?: NestedPieRingRow }) => {
+                    const v = props.payload?.stock_value;
+                    return v != null && Number.isFinite(Number(v)) ? money(Number(v)) : "";
+                  }
+            }
+          >
+            {rows.map((_, i) => (
+              <Cell
+                key={`np-out-${i}`}
+                fill={PIE_COLORS[i % PIE_COLORS.length]}
+                stroke="hsl(var(--background))"
+                strokeWidth={1}
+              />
+            ))}
+          </Pie>
+        </PieChart>
+      ) : null}
+      <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex max-w-[28%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center text-center">
+        <span className="text-2xl font-bold tabular-nums leading-tight text-foreground">
+          {totalProdutosSum.toLocaleString("pt-BR")}
+        </span>
+        <span className="text-xs text-muted-foreground">produtos</span>
+      </div>
+    </div>
+  );
 }
 
 function AutoCardChart({ card }: { card: AutoCard }) {
@@ -452,18 +889,28 @@ function AutoCardChart({ card }: { card: AutoCard }) {
     return buildComboCategoryStockRows(card);
   }, [card]);
 
-  const nestedPieCategoryRows = useMemo(() => {
-    if (card.chart_type !== "nested_pie_equal_category") return null;
-    return buildNestedPieByCategoryRows(card);
+  const salesRevenueMonthRows = useMemo(() => buildSalesRevenueMonthRows(card), [card]);
+
+  const nestedPieRingRows = useMemo(() => {
+    if (card.chart_type === "nested_pie_equal_category") return buildNestedPieRingRows(card, "category");
+    if (card.chart_type === "nested_pie_equal_brand") return buildNestedPieRingRows(card, "brand");
+    return null;
   }, [card]);
 
-  /** Ordem idêntica nos dois anéis; Recharts usa a ordem do array para desenhar setores. */
+  const highValuesPieRows = useMemo(() => {
+    if (card.chart_type !== "nested_pie_high_values") return null;
+    const raw = buildHighValuesPieRows(card);
+    if (!raw?.length) return null;
+    return [...raw].sort((a, b) => b.preco - a.preco);
+  }, [card]);
+
+  /** Mesma ordem de linhas nos dois anéis (cores por índice). Em “por marca” os ângulos diferem entre anéis (métricas distintas). */
   const nestedPieSortedRows = useMemo(() => {
-    if (!nestedPieCategoryRows?.length) return null;
-    return [...nestedPieCategoryRows].sort((a, b) =>
-      String(a.categoria).localeCompare(String(b.categoria), "pt-BR", { sensitivity: "base" }),
+    if (!nestedPieRingRows?.length) return null;
+    return [...nestedPieRingRows].sort((a, b) =>
+      String(a.segment).localeCompare(String(b.segment), "pt-BR", { sensitivity: "base" }),
     );
-  }, [nestedPieCategoryRows]);
+  }, [nestedPieRingRows]);
 
   if (card.chart_type === "scatter") {
     if (!scatterPrepared || "error" in scatterPrepared) {
@@ -546,96 +993,37 @@ function AutoCardChart({ card }: { card: AutoCard }) {
     );
   }
 
-  if (card.chart_type === "nested_pie_equal_category") {
-    if (!nestedPieSortedRows?.length) {
+  if (card.chart_type === "nested_pie_high_values") {
+    if (!highValuesPieRows?.length) {
       return (
         <p className="text-destructive text-sm">
-          Não foi possível montar a pizza (categoria, contagem de produtos, valor em estoque) ou não há linhas.
+          Não foi possível montar a pizza (nome do produto e preço) ou não há linhas.
         </p>
       );
     }
+    return <NestedDoublePieHighValuesChart rows={highValuesPieRows} />;
+  }
+
+  if (card.chart_type === "nested_pie_equal_category" || card.chart_type === "nested_pie_equal_brand") {
+    if (!nestedPieSortedRows?.length) {
+      return (
+        <p className="text-destructive text-sm">
+          Não foi possível montar a pizza (dimensão, contagem de produtos, valor em estoque) ou não há linhas.
+        </p>
+      );
+    }
+    const isBrandPie = card.chart_type === "nested_pie_equal_brand";
     const totalProdutosSum = nestedPieSortedRows.reduce((s, r) => s + r.product_count, 0);
-    const truncateCat = (s: string, max = 14) => {
-      const t = String(s);
-      return t.length > max ? `${t.slice(0, max)}…` : t;
-    };
-    /* Ambos os anéis usam product_count no arco para alinhar fatias; proporção = qtd produtos por categoria. */
-    const pieAngleProps = { startAngle: 90, endAngle: 450, paddingAngle: 0, minAngle: 0, isAnimationActive: false };
+    const innerDataKey = (isBrandPie ? "stock_value" : "product_count") as "stock_value" | "product_count";
+    const outerDataKey = "product_count" as const;
     return (
-      <div className="relative h-full min-h-[300px] w-full">
-        <ResponsiveContainer width="100%" height="100%">
-          <PieChart margin={{ top: 8, right: 8, bottom: 8, left: 8 }}>
-            <Tooltip
-              content={({ active, payload }) => {
-                if (!active || !payload?.[0]) return null;
-                const row = payload[0].payload as NestedPieCategoryRow;
-                const cat = row.categoria ?? String(payload[0].name ?? "");
-                return (
-                  <div className="rounded-md border border-border bg-background px-2 py-1.5 text-xs shadow-md">
-                    <p className="font-medium text-foreground">{cat}</p>
-                    <p className="text-muted-foreground">
-                      Produtos: {Number(row.product_count).toLocaleString("pt-BR")}
-                    </p>
-                    <p className="text-muted-foreground">Valor estoque: {money(Number(row.stock_value))}</p>
-                  </div>
-                );
-              }}
-            />
-            <Pie
-              {...pieAngleProps}
-              data={nestedPieSortedRows}
-              dataKey="product_count"
-              nameKey="categoria"
-              cx="50%"
-              cy="50%"
-              innerRadius="26%"
-              outerRadius="44%"
-              labelLine={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 0.5 }}
-              label={({ name }: { name?: string }) => truncateCat(String(name ?? ""))}
-            >
-              {nestedPieSortedRows.map((_, i) => (
-                <Cell
-                  key={`np-in-${i}`}
-                  fill={PIE_COLORS[i % PIE_COLORS.length]}
-                  stroke="hsl(var(--background))"
-                  strokeWidth={1}
-                />
-              ))}
-            </Pie>
-            <Pie
-              {...pieAngleProps}
-              data={nestedPieSortedRows}
-              dataKey="product_count"
-              nameKey="categoria"
-              cx="50%"
-              cy="50%"
-              innerRadius="47%"
-              outerRadius="70%"
-              labelLine={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 0.5 }}
-              label={(props: { payload?: NestedPieCategoryRow }) => {
-                const v = props.payload?.stock_value;
-                return v != null && Number.isFinite(Number(v)) ? money(Number(v)) : "";
-              }}
-            >
-              {nestedPieSortedRows.map((_, i) => (
-                <Cell
-                  key={`np-out-${i}`}
-                  fill={PIE_COLORS[i % PIE_COLORS.length]}
-                  fillOpacity={0.85}
-                  stroke="hsl(var(--background))"
-                  strokeWidth={1}
-                />
-              ))}
-            </Pie>
-          </PieChart>
-        </ResponsiveContainer>
-        <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex max-w-[28%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center text-center">
-          <span className="text-2xl font-bold tabular-nums leading-tight text-foreground">
-            {totalProdutosSum.toLocaleString("pt-BR")}
-          </span>
-          <span className="text-xs text-muted-foreground">produtos</span>
-        </div>
-      </div>
+      <NestedDoublePieChart
+        rows={nestedPieSortedRows}
+        isBrandPie={isBrandPie}
+        innerDataKey={innerDataKey}
+        outerDataKey={outerDataKey}
+        totalProdutosSum={totalProdutosSum}
+      />
     );
   }
 
@@ -709,6 +1097,52 @@ function AutoCardChart({ card }: { card: AutoCard }) {
   const xKey = dateCol || strCol;
 
   if (card.chart_type === "line" || card.chart_type === "bar") {
+    if (salesRevenueMonthRows?.length) {
+      return (
+        <ResponsiveContainer width="100%" height="100%">
+          <ComposedChart data={salesRevenueMonthRows} margin={{ top: 8, right: 8, left: 4, bottom: 8 }}>
+            <CartesianGrid strokeDasharray="3 3" className="stroke-muted" />
+            <XAxis dataKey="label" tick={{ fontSize: 11 }} />
+            <YAxis
+              yAxisId="sold"
+              tick={{ fontSize: 11 }}
+              tickFormatter={(v) => Number(v).toLocaleString("pt-BR")}
+              width={48}
+            />
+            <YAxis
+              yAxisId="revenue"
+              orientation="right"
+              tick={{ fontSize: 10 }}
+              tickFormatter={(v) => money(Number(v))}
+              width={76}
+            />
+            <Tooltip
+              formatter={(value: number, name: string) =>
+                name === "receita_bruta" ? money(Number(value)) : Number(value).toLocaleString("pt-BR")
+              }
+            />
+            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <Bar
+              yAxisId="revenue"
+              dataKey="receita_bruta"
+              name="receita_bruta"
+              fill="#06b6d4"
+              radius={[4, 4, 0, 0]}
+              maxBarSize={36}
+            />
+            <Line
+              yAxisId="sold"
+              type="monotone"
+              dataKey="produtos_vendidos"
+              name="produtos_vendidos"
+              stroke="#6366f1"
+              strokeWidth={2}
+              dot={{ r: 3 }}
+            />
+          </ComposedChart>
+        </ResponsiveContainer>
+      );
+    }
     return (
       <ResponsiveContainer width="100%" height="100%">
         <BarChart data={card.rows} margin={{ top: 4, right: 8, left: 0, bottom: 4 }}>
@@ -862,8 +1296,10 @@ export default function MetabaseReports() {
                         : card.chart_type === "combo_category_stock"
                           ? "min-h-[380px] h-[400px]"
                           : card.chart_type === "nested_pie_equal_category"
-                            ? "min-h-[380px] h-[400px]"
-                            : "h-[300px]"
+                            || card.chart_type === "nested_pie_equal_brand"
+                            || card.chart_type === "nested_pie_high_values"
+                          ? "min-h-[380px] h-[400px]"
+                          : "h-[300px]"
                     }
                   >
                     <AutoCardChart card={card} />

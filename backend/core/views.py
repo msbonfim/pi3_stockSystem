@@ -537,6 +537,16 @@ def _infer_chart_type(cols: list[dict], card_name: str = "") -> str:
         if n_num >= 2 and n_str >= 1:
             return "nested_pie_equal_category"
 
+    # "POR MARCA": pizza dupla (como por categoria): centro = Σ produtos; anéis ∝ qtd; externo = valor estoque
+    if "por marca" in lower and "cobertura" not in lower:
+        if n_num >= 2 and n_str >= 1:
+            return "nested_pie_equal_brand"
+
+    # "Valores mais altos": pizza dupla — anel interno = nome do produto; externo = preço (fatias ∝ preço)
+    if "valores mais altos" in lower or ("valores" in lower and "mais altos" in lower):
+        if n_num >= 1 and n_str >= 1:
+            return "nested_pie_high_values"
+
     if n_date >= 1 and n_num >= 1:
         return "line"
     if n_str >= 1 and n_num >= 1:
