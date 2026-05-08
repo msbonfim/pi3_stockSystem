@@ -26,8 +26,11 @@ def _jsonify_cell(val: Any) -> Any:
         return None
     if isinstance(val, Decimal):
         return float(val)
-    if isinstance(val, (datetime, date)):
-        return val.isoformat()[:10] if isinstance(val, date) else val.isoformat()
+    # datetime é subclasse de date: testar datetime primeiro.
+    if isinstance(val, datetime):
+        return val.isoformat()
+    if isinstance(val, date):
+        return val.isoformat()
     return val
 
 

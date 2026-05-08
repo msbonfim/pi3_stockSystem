@@ -15,6 +15,7 @@ from django.db.models.functions import Coalesce, TruncMonth
 from django.utils import timezone
 from datetime import timedelta, date
 from .models import Category, Notification, Product, PushSubscription, Sale, SaleItem
+from .chart_inference import col_type_metabase, infer_chart_type
 from .serializers import (
     CategorySerializer,
     NotificationSerializer,
@@ -472,90 +473,6 @@ def metabase_analytics(request):
         )
 
 
-def _col_type(col: dict) -> str:
-    """Simplifica o tipo de coluna do Metabase em: string | number | date."""
-    base_type = str(col.get("base_type") or col.get("effective_type") or "")
-    if "Integer" in base_type or "Float" in base_type or "Decimal" in base_type or "BigInt" in base_type:
-        return "number"
-    if "DateTime" in base_type or "Date" in base_type or "Temporal" in base_type:
-        return "date"
-    return "string"
-
-
-def _infer_chart_type(cols: list[dict], card_name: str = "") -> str:
-    """
-    Tenta sugerir o melhor tipo de gráfico para os dados.
-    Regras simples:
-      - Card de estoque baixo (nome) → scatter (nome x preço, bolha = quantidade)
-      - 1 linha (KPI)  → metric
-      - date/str + number(s) → bar/line (usa 'bar')
-      - string + 1 number → pie se ≤ 8 categorias, senão bar
-      - resto → table
-    """
-    types = [_col_type(c) for c in cols]
-    n_num = types.count("number")
-    n_str = types.count("string")
-    n_date = types.count("date")
-
-    lower = (card_name or "").lower()
-    # Cobertura por categoria: bolha = itens estoque baixo, X = categoria, Y = total na categoria
-    if (
-        ("cobertura" in lower and "categoria" in lower)
-        or ("cobertura de estoque baixo" in lower)
-    ):
-        if n_num >= 2 and n_str >= 1:
-            return "scatter"
-    if any(k in lower for k in ("baixo estoque", "estoque baixo", "low stock")):
-        if n_num >= 2 and n_str >= 1:
-            return "scatter"
-
-    # Estoque por categoria (quantidade e valor): combo barras + linha (inalterado no frontend)
-    if (
-        ("estoque por categoria" in lower)
-        or (
-            "estoque" in lower
-            and "categoria" in lower
-            and ("quantidade" in lower or "valor" in lower)
-        )
-    ) and "cobertura" not in lower:
-        if n_num >= 3 and n_str >= 1:
-            return "combo_category_stock"
-
-    # "POR CATEGORIA" (título curto, sem o bloco "estoque… quantidade/valor"): pizza dupla, fatias ∝ qtd produtos
-    if (
-        "por categoria" in lower
-        and "cobertura" not in lower
-        and not (
-            ("estoque por categoria" in lower)
-            or (
-                "estoque" in lower
-                and "categoria" in lower
-                and ("quantidade" in lower or "valor" in lower)
-            )
-        )
-    ):
-        if n_num >= 2 and n_str >= 1:
-            return "nested_pie_equal_category"
-
-    # "POR MARCA": pizza dupla (como por categoria): centro = Σ produtos; anéis ∝ qtd; externo = valor estoque
-    if "por marca" in lower and "cobertura" not in lower:
-        if n_num >= 2 and n_str >= 1:
-            return "nested_pie_equal_brand"
-
-    # "Valores mais altos": pizza dupla — anel interno = nome do produto; externo = preço (fatias ∝ preço)
-    if "valores mais altos" in lower or ("valores" in lower and "mais altos" in lower):
-        if n_num >= 1 and n_str >= 1:
-            return "nested_pie_high_values"
-
-    if n_date >= 1 and n_num >= 1:
-        return "line"
-    if n_str >= 1 and n_num >= 1:
-        return "bar"
-    if n_num == len(types) and len(types) <= 3:
-        return "metric"
-    return "table"
-
-
 @api_view(['GET'])
 def metabase_collection_cards(request):
     """
@@ -606,8 +523,8 @@ def metabase_collection_cards(request):
                 cols = data.get('cols') or []
                 rows = data.get('rows') or []
                 col_names = [str(c.get('display_name') or c.get('name') or f'c{i}') for i, c in enumerate(cols)]
-                col_types = [_col_type(c) for c in cols]
-                chart_type = _infer_chart_type(cols, str(card.get('name') or ''))
+                col_types = [col_type_metabase(c) for c in cols]
+                chart_type = infer_chart_type(cols, str(card.get('name') or ''))
                 # Converte rows em lista de dicts usando display_name como chave
                 rows_dicts = []
                 for row in rows:

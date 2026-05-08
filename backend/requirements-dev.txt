@@ -1,0 +1,33 @@
+# Desenvolvimento / CI
+#
+# Backend — sem dependências extras para chart_inference (só stdlib):
+#   cd backend
+#   python -m unittest core.tests.test_chart_inference -v
+#
+# Backend — suite mais ampla (precisa do mesmo Python/venv onde o Django está instalado):
+#   cd backend
+#   python -m unittest discover -s core/tests -p "test_*.py" -v
+#   Sem Django no ambiente, test_metabase_client e test_serializers aparecem como "skipped".
+#
+# Frontend — Vitest:
+#   cd frontend
+#   npm test
+#
+# Frontend — interface web Vitest (UI):
+#   cd frontend && npm install && npm run test:ui
+#
+# Cursor / VS Code — painel Testing:
+#   Extensão Python; .vscode/settings.json aponta unittest para backend/core/tests.
+#
+# Orquestrador (raiz do repo — estilo iniciar_servicos.py):
+#   python iniciar_testes.py
+#   python iniciar_testes.py --only-frontend
+#   python iniciar_testes.py --install
+#   python iniciar_testes.py --watch | --ui
+# Gera 4-testes-backend.bat … 8-testes-frontend-ui.bat na raiz.
+#
+# Automatizar testes do frontend (sem repetir npm a cada sessão):
+#   - Extensão Vitest (vitest.explorer); ver docs/TESTES.md e .vscode/settings.json.
+#   - Cmd/Ctrl+Shift+P → "Tasks: Run Test Task" → "Frontend: Vitest (watch)".
+#
+# Documentação completa dos testes: docs/TESTES.md
