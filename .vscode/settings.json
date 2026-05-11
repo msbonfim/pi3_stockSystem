@@ -1,0 +1,8 @@
+{
+  "python.testing.unittestEnabled": true,
+  "python.testing.pytestEnabled": false,
+  "python.testing.cwd": "${workspaceFolder}/backend",
+  "python.testing.unittestArgs": ["-v", "-s", "./core/tests", "-p", "test_*.py"],
+  "vitest.rootConfig": "frontend/vite.config.ts",
+  "vitest.watchOnStartup": true
+}

@@ -23,33 +23,21 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
 import { ExternalLink, Loader2 } from "lucide-react";
+import type { AutoCard, NestedPieHighValueRow, NestedPieRingRow } from "./metabaseReports.logic";
+import {
+  buildComboCategoryStockRows,
+  buildHighValuesPieRows,
+  buildNestedPieRingRows,
+  buildSalesRevenueMonthRows,
+  partitionReportCards,
+  resolveCategoryCoverageScatterKeys,
+  resolveScatterKeys,
+} from "./metabaseReports.logic";
 
 const API_BASE =
   window.location.hostname === "localhost" || window.location.hostname === "127.0.0.1"
     ? "http://localhost:8000/api"
     : "https://pi2-stocksystem-backend.onrender.com/api";
-
-type AutoCard = {
-  id: number;
-  name: string;
-  description?: string;
-  chart_type:
-    | "bar"
-    | "line"
-    | "metric"
-    | "table"
-    | "error"
-    | "scatter"
-    | "combo_category_stock"
-    | "nested_pie_equal_category"
-    | "nested_pie_equal_brand"
-    | "nested_pie_high_values";
-  col_names: string[];
-  col_types: string[];
-  rows: Record<string, unknown>[];
-  metric_values: Record<string, number>;
-  error?: string;
-};
 
 const money = (n: number) => n.toLocaleString("pt-BR", { style: "currency", currency: "BRL" });
 const fmt = (v: unknown, colType?: string) => {
@@ -57,54 +45,69 @@ const fmt = (v: unknown, colType?: string) => {
   if (colType === "number") return Number(v).toLocaleString("pt-BR");
   return String(v);
 };
+
+/** snake_case / chaves SQL → texto legível nos cards de resumo (topo). */
+function humanizeFieldLabel(name: string): string {
+  return String(name).replaceAll("_", " ").replace(/\s+/g, " ").trim();
+}
+
 const PIE_COLORS = ["#6366f1", "#16a34a", "#f59e0b", "#ef4444", "#06b6d4", "#8b5cf6", "#84cc16", "#f97316"];
 
-const norm = (s: string) =>
-  s
-    .toLowerCase()
-    .normalize("NFD")
-    .replace(/[\u0300-\u036f]/g, "");
+/** 120 matizes ~3° aparte — base antes do deslocamento áureo por índice. */
+const HUE_RING: readonly number[] = Array.from({ length: 120 }, (_, i) =>
+  Math.round((i * 360) / 120) % 360,
+);
 
-/** Resumo no topo da página: estes títulos viram cards só com texto (não gráfico). */
-const TOP_SUMMARY_MATCHERS: { order: number; test: (nameNorm: string) => boolean }[] = [
-  { order: 0, test: (n) => n.includes("valores totais") },
-  { order: 1, test: (n) => n.includes("vencidos") && (n.includes("30") || n.includes("+ 30")) },
-  { order: 2, test: (n) => n.includes("por validade") },
-];
+const GOLDEN_ANGLE_DEG = 137.50776405003785;
 
-function isTopSummaryCardName(name: string): boolean {
-  const n = norm(name);
-  return TOP_SUMMARY_MATCHERS.some(({ test }) => test(n));
-}
-
-function topSummarySortOrder(name: string): number {
-  const n = norm(name);
-  const i = TOP_SUMMARY_MATCHERS.findIndex(({ test }) => test(n));
-  return i === -1 ? 999 : TOP_SUMMARY_MATCHERS[i].order;
-}
-
-function gridCardSortOrder(name: string): number {
-  const n = norm(name);
-  if (n.includes("estoque por categoria") && n.includes("quantidade") && n.includes("valor")) return 0;
-  if (n.includes("produtos vendidos") && n.includes("receita bruta")) return 1;
-  return 999;
-}
-
-function partitionReportCards(cards: AutoCard[]): {
-  topSummaryCards: AutoCard[];
-  gridCards: AutoCard[];
-} {
-  const topSummaryCards: AutoCard[] = [];
-  const gridCards: AutoCard[] = [];
-  for (const c of cards) {
-    if (isTopSummaryCardName(c.name || "")) topSummaryCards.push(c);
-    else gridCards.push(c);
+function hashSegmentKey(segment: string, index: number): number {
+  const s = `${index}\0${segment}`;
+  let h = 2166136261;
+  for (let i = 0; i < s.length; i++) {
+    h ^= s.charCodeAt(i);
+    h = Math.imul(h, 16777619);
   }
-  topSummaryCards.sort(
-    (a, b) => topSummarySortOrder(a.name || "") - topSummarySortOrder(b.name || ""),
+  return h >>> 0;
+}
+
+/**
+ * Cor estável por (segmento, índice): matiz bem espalhada + sat/luz que mudam com índice
+ * (menos colisões visuais que só `hash % 360`).
+ */
+function pieSegmentColor(segment: string, index: number): string {
+  const hi = hashSegmentKey(segment, index);
+  const ring = HUE_RING[hi % HUE_RING.length];
+  const hue = (ring + index * GOLDEN_ANGLE_DEG + (hi % 23) * 3.7) % 360;
+  const sat = 46 + ((hi >>> 4) % 28) + (index % 6) * 4;
+  const light = 32 + ((hi >>> 9) % 14) + (index % 7) * 3;
+  const sSat = Math.min(90, Math.max(44, sat));
+  const sLight = Math.min(62, Math.max(28, light));
+  return `hsl(${hue.toFixed(1)} ${sSat}% ${sLight}%)`;
+}
+
+/** Legenda com quadrados alinhados às cores dos segmentos das pizzas. */
+function PieSegmentsLegend({ segments }: { segments: string[] }) {
+  if (!segments.length) return null;
+  const MAX = 48;
+  const shown = segments.slice(0, MAX);
+  const rest = segments.length - MAX;
+  return (
+    <ul className="flex max-h-[9.5rem] shrink-0 flex-wrap gap-x-3 gap-y-1.5 overflow-y-auto rounded-md border border-border/50 bg-muted/20 px-2 py-2 text-xs">
+      {shown.map((seg, i) => (
+        <li key={`${i}-${seg}`} className="flex max-w-[200px] items-center gap-1.5">
+          <span
+            className="size-2.5 shrink-0 rounded-[2px] border border-border/60 shadow-sm"
+            style={{ backgroundColor: pieSegmentColor(seg, i) }}
+            aria-hidden
+          />
+          <span className="truncate text-muted-foreground" title={seg}>
+            {seg || "—"}
+          </span>
+        </li>
+      ))}
+      {rest > 0 ? <li className="text-muted-foreground">+{rest} …</li> : null}
+    </ul>
   );
-  gridCards.sort((a, b) => gridCardSortOrder(a.name || "") - gridCardSortOrder(b.name || ""));
-  return { topSummaryCards, gridCards };
 }
 
 /** Conteúdo textual para cards de resumo (métrica ou tabela). */
@@ -118,7 +121,9 @@ function SummaryTextCardContent({ card }: { card: AutoCard }) {
       <dl className="space-y-2 text-sm">
         {Object.entries(mv).map(([k, v]) => (
           <div key={k} className="flex flex-wrap justify-between gap-x-4 gap-y-1">
-            <dt className="text-muted-foreground">{k}</dt>
+            <dt className="text-muted-foreground" title={k}>
+              {humanizeFieldLabel(k)}
+            </dt>
             <dd className="font-medium tabular-nums text-foreground">{Number(v).toLocaleString("pt-BR")}</dd>
           </div>
         ))}
@@ -141,7 +146,9 @@ function SummaryTextCardContent({ card }: { card: AutoCard }) {
           <dl className="space-y-1.5">
             {card.col_names.map((col, ci) => (
               <div key={`${ri}-${col}`} className="flex flex-wrap justify-between gap-x-4 gap-y-0.5">
-                <dt className="text-muted-foreground">{col}</dt>
+                <dt className="text-muted-foreground" title={col}>
+                  {humanizeFieldLabel(col)}
+                </dt>
                 <dd className="max-w-[70%] text-right font-medium leading-snug text-foreground">
                   {fmt(row[col], card.col_types[ci])}
                 </dd>
@@ -152,433 +159,6 @@ function SummaryTextCardContent({ card }: { card: AutoCard }) {
       ))}
     </div>
   );
-}
-
-/** Cobertura estoque baixo por categoria: categoria, itens_estoque_baixo, total_itens, ... */
-function resolveCategoryCoverageScatterKeys(
-  card: AutoCard,
-): { catKey: string; totalKey: string; lowItemsKey: string } | null {
-  const { col_names: names, col_types: types } = card;
-  if (!names.length) return null;
-
-  let catKey = "";
-  for (let i = 0; i < names.length; i++) {
-    if (types[i] !== "string") continue;
-    const n = norm(names[i]);
-    if (n.includes("categoria") || n.includes("category")) {
-      catKey = names[i];
-      break;
-    }
-  }
-  if (!catKey) {
-    const idx = types.indexOf("string");
-    if (idx >= 0) catKey = names[idx];
-  }
-  if (!catKey) return null;
-
-  let totalKey = "";
-  let lowItemsKey = "";
-  for (let i = 0; i < names.length; i++) {
-    if (types[i] !== "number") continue;
-    const n = norm(names[i]);
-    if (n.includes("itens_estoque_baixo") || (n.includes("estoque_baixo") && n.includes("itens")))
-      lowItemsKey = names[i];
-    if (n.includes("total_itens") || (n.includes("total") && n.includes("itens") && !n.includes("estoque_baixo")))
-      totalKey = names[i];
-  }
-
-  const numCols = names.filter((_, i) => types[i] === "number");
-  const title = norm(card.name || "");
-  if (!lowItemsKey || !totalKey) {
-    if (title.includes("cobertura") && title.includes("categoria") && numCols.length >= 2) {
-      if (!lowItemsKey) lowItemsKey = numCols[0];
-      if (!totalKey) totalKey = numCols[1];
-    }
-  }
-  if (!lowItemsKey || !totalKey || lowItemsKey === totalKey) return null;
-  return { catKey, totalKey, lowItemsKey };
-}
-
-/** Colunas típicas do card estoque baixo: id, nome, qtd, preço, ... */
-function resolveScatterKeys(card: AutoCard): { nameKey: string; qtyKey: string; priceKey: string } | null {
-  const { col_names: names, col_types: types } = card;
-  if (!names.length) return null;
-
-  let nameKey = "";
-  for (let i = 0; i < names.length; i++) {
-    if (types[i] !== "string") continue;
-    const n = norm(names[i]);
-    if (n.includes("nome") || n.includes("name") || n.includes("produto")) {
-      nameKey = names[i];
-      break;
-    }
-  }
-  if (!nameKey) {
-    const idx = types.indexOf("string");
-    if (idx >= 0) nameKey = names[idx];
-  }
-  if (!nameKey) return null;
-
-  let qtyKey = "";
-  let priceKey = "";
-  for (let i = 0; i < names.length; i++) {
-    if (types[i] !== "number") continue;
-    const n = norm(names[i]);
-    if (n.includes("quant") || n.includes("qtd") || n === "qty") qtyKey = names[i];
-    if (n.includes("preco") || n.includes("price") || (n.includes("valor") && !n.includes("line"))) priceKey = names[i];
-  }
-
-  const numCols = names.filter((_, i) => types[i] === "number");
-  if (!qtyKey || !priceKey) {
-    // Ordem comum: id, quantity, price
-    if (numCols.length >= 3) {
-      if (!qtyKey) qtyKey = numCols[1];
-      if (!priceKey) priceKey = numCols[2];
-    } else if (numCols.length === 2) {
-      if (!qtyKey) qtyKey = numCols[0];
-      if (!priceKey) priceKey = numCols[1];
-    }
-  }
-  if (!qtyKey || !priceKey || qtyKey === priceKey) return null;
-  return { nameKey, qtyKey, priceKey };
-}
-
-type ComboCategoryRow = {
-  categoria: string;
-  total_produtos: number;
-  total_unidades: number;
-  valor_estoque: number;
-};
-
-type SalesRevenueRow = {
-  label: string;
-  produtos_vendidos: number;
-  receita_bruta: number;
-};
-
-/** SQL típico: categoria, total_produtos, total_unidades, valor_estoque — combo: barra = contagem (product_count); linha = valor (stock_value) */
-function resolveComboCategoryStockKeys(
-  card: AutoCard,
-): { catKey: string; prodKey: string; unitsKey: string; valueKey: string } | null {
-  const { col_names: names, col_types: types } = card;
-  if (!names.length) return null;
-
-  let catKey = "";
-  for (let i = 0; i < names.length; i++) {
-    if (types[i] !== "string") continue;
-    const n = norm(names[i]);
-    if (n.includes("categoria") || n.includes("category")) {
-      catKey = names[i];
-      break;
-    }
-  }
-  if (!catKey) {
-    const idx = types.indexOf("string");
-    if (idx >= 0) catKey = names[idx];
-  }
-  if (!catKey) return null;
-
-  let prodKey = "";
-  let unitsKey = "";
-  let valueKey = "";
-  for (let i = 0; i < names.length; i++) {
-    if (types[i] !== "number") continue;
-    const n = norm(names[i]);
-    if (n.includes("total_produtos") || (n.includes("total") && n.includes("produto")))
-      prodKey = names[i];
-    if (n.includes("total_unidades") || (n.includes("unidades") && !n.includes("preco")))
-      unitsKey = names[i];
-    if (n.includes("valor_estoque") || (n.includes("valor") && n.includes("estoque")))
-      valueKey = names[i];
-  }
-
-  const numCols = names.filter((_, i) => types[i] === "number");
-  const title = norm(card.name || "");
-  if (!prodKey || !unitsKey || !valueKey) {
-    if (title.includes("estoque") && title.includes("categoria") && numCols.length >= 3) {
-      if (!prodKey) prodKey = numCols[0];
-      if (!unitsKey) unitsKey = numCols[1];
-      if (!valueKey) valueKey = numCols[2];
-    }
-  }
-  if (!prodKey || !unitsKey || !valueKey) return null;
-  const uniq = new Set([prodKey, unitsKey, valueKey]);
-  if (uniq.size !== 3) return null;
-  return { catKey, prodKey, unitsKey, valueKey };
-}
-
-function buildComboCategoryStockRows(card: AutoCard): ComboCategoryRow[] | null {
-  const keys = resolveComboCategoryStockKeys(card);
-  if (!keys) return null;
-  const out: ComboCategoryRow[] = [];
-  for (const row of card.rows) {
-    const categoria = String(row[keys.catKey] ?? "");
-    const total_produtos = Number(row[keys.prodKey]);
-    const total_unidades = Number(row[keys.unitsKey]);
-    const valor_estoque = Number(row[keys.valueKey]);
-    if (
-      !Number.isFinite(total_produtos)
-      || !Number.isFinite(total_unidades)
-      || !Number.isFinite(valor_estoque)
-    )
-      continue;
-    out.push({
-      categoria: categoria || "—",
-      total_produtos,
-      total_unidades,
-      valor_estoque,
-    });
-  }
-  return out;
-}
-
-function resolveSalesRevenueMonthKeys(
-  card: AutoCard,
-): { labelKey: string; soldKey: string; revenueKey: string } | null {
-  const title = norm(card.name || "");
-  const isSalesRevenueMonthCard =
-    title.includes("produtos vendidos") && title.includes("receita bruta");
-  if (!isSalesRevenueMonthCard) return null;
-
-  const { col_names: names, col_types: types } = card;
-  if (!names.length) return null;
-
-  let labelKey = "";
-  for (let i = 0; i < names.length; i++) {
-    if (types[i] === "date") {
-      labelKey = names[i];
-      break;
-    }
-  }
-  if (!labelKey) {
-    const idx = types.indexOf("string");
-    if (idx >= 0) labelKey = names[idx];
-  }
-  if (!labelKey) labelKey = names[0];
-
-  let soldKey = "";
-  let revenueKey = "";
-  for (let i = 0; i < names.length; i++) {
-    if (types[i] !== "number") continue;
-    const n = norm(names[i]);
-    if (
-      n.includes("produtos_vendidos")
-      || (n.includes("produto") && n.includes("vendid"))
-      || n.includes("itens_vendidos")
-      || n.includes("qtd_vendida")
-    )
-      soldKey = names[i];
-    if (
-      n.includes("receita_bruta")
-      || (n.includes("receita") && n.includes("bruta"))
-      || n.includes("faturamento")
-      || n.includes("valor_vendas")
-    )
-      revenueKey = names[i];
-  }
-
-  if (!soldKey || !revenueKey) {
-    const numericCols = names.filter((_, i) => types[i] === "number");
-    if (numericCols.length >= 2) {
-      if (!soldKey) soldKey = numericCols[0];
-      if (!revenueKey) revenueKey = numericCols[1];
-    }
-  }
-  if (!soldKey || !revenueKey || soldKey === revenueKey) return null;
-  return { labelKey, soldKey, revenueKey };
-}
-
-function buildSalesRevenueMonthRows(card: AutoCard): SalesRevenueRow[] | null {
-  const keys = resolveSalesRevenueMonthKeys(card);
-  if (!keys) return null;
-  const out: SalesRevenueRow[] = [];
-  for (const row of card.rows) {
-    const label = String(row[keys.labelKey] ?? "");
-    const produtos_vendidos = Number(row[keys.soldKey]);
-    const receita_bruta = Number(row[keys.revenueKey]);
-    if (!Number.isFinite(produtos_vendidos) || !Number.isFinite(receita_bruta)) continue;
-    out.push({
-      label: label || "—",
-      produtos_vendidos,
-      receita_bruta,
-    });
-  }
-  return out.length ? out : null;
-}
-
-/** Pizza dupla (por categoria ou por marca): fatias ∝ product_count; rótulo externo = valor estoque. */
-type NestedPieRingRow = {
-  segment: string;
-  product_count: number;
-  stock_value: number;
-};
-
-function resolveNestedPieRingKeys(
-  card: AutoCard,
-  mode: "category" | "brand",
-): { labelKey: string; countKey: string; valueKey: string } | null {
-  const { col_names: names, col_types: types } = card;
-  if (!names.length) return null;
-
-  let labelKey = "";
-  if (mode === "category") {
-    for (let i = 0; i < names.length; i++) {
-      if (types[i] !== "string") continue;
-      const n = norm(names[i]);
-      if (n.includes("categoria") || n.includes("category") || n === "name" || n.includes("nome")) {
-        labelKey = names[i];
-        break;
-      }
-    }
-  } else {
-    for (let i = 0; i < names.length; i++) {
-      if (types[i] !== "string") continue;
-      const n = norm(names[i]);
-      if (n.includes("marca") || n.includes("brand") || n.includes("fabricante")) {
-        labelKey = names[i];
-        break;
-      }
-    }
-  }
-  if (!labelKey) {
-    const idx = types.indexOf("string");
-    const title = norm(card.name || "");
-    if (
-      idx >= 0
-      && ((mode === "category" && title.includes("por categoria"))
-        || (mode === "brand" && title.includes("por marca")))
-    )
-      labelKey = names[idx];
-  }
-  if (!labelKey) return null;
-
-  let countKey = "";
-  let valueKey = "";
-  for (let i = 0; i < names.length; i++) {
-    if (types[i] !== "number") continue;
-    const n = norm(names[i]);
-    if (
-      n.includes("product_count")
-      || (n.includes("produto") && n.includes("count"))
-      || n.includes("total_produtos")
-    )
-      countKey = names[i];
-    if (
-      n.includes("stock_value")
-      || n.includes("valor_estoque")
-      || (n.includes("stock") && n.includes("value"))
-      || (n.includes("valor") && n.includes("estoque") && !n.includes("baixo"))
-    )
-      valueKey = names[i];
-  }
-
-  const numCols = names.filter((_, i) => types[i] === "number");
-  const title = norm(card.name || "");
-  if (!countKey || !valueKey) {
-    const titleOk =
-      (mode === "category" && title.includes("por categoria") && !title.includes("estoque"))
-      || (mode === "brand" && title.includes("por marca"));
-    if (titleOk && numCols.length >= 2) {
-      if (numCols.length === 2) {
-        countKey = numCols[0];
-        valueKey = numCols[1];
-      } else if (numCols.length >= 3) {
-        countKey = numCols[0];
-        valueKey = numCols[numCols.length - 1];
-      }
-    }
-  }
-  if (!countKey || !valueKey || countKey === valueKey) return null;
-  return { labelKey, countKey, valueKey };
-}
-
-function buildNestedPieRingRows(card: AutoCard, mode: "category" | "brand"): NestedPieRingRow[] | null {
-  const keys = resolveNestedPieRingKeys(card, mode);
-  if (!keys) return null;
-  const out: NestedPieRingRow[] = [];
-  for (const row of card.rows) {
-    const segment = String(row[keys.labelKey] ?? "");
-    const product_count = Number(row[keys.countKey]);
-    const stock_value = Number(row[keys.valueKey]);
-    if (!Number.isFinite(product_count) || !Number.isFinite(stock_value)) continue;
-    out.push({
-      segment: segment || "—",
-      product_count,
-      stock_value,
-    });
-  }
-  return out.length ? out : null;
-}
-
-/** Card "Valores mais altos": produto + preço; ambos os anéis ∝ preço; rótulos interno = nome, externo = valor. */
-type NestedPieHighValueRow = {
-  segment: string;
-  preco: number;
-};
-
-function resolveHighValuesPieKeys(card: AutoCard): { nameKey: string; priceKey: string } | null {
-  const { col_names: names, col_types: types } = card;
-  if (!names.length) return null;
-
-  let nameKey = "";
-  for (let i = 0; i < names.length; i++) {
-    if (types[i] !== "string") continue;
-    const n = norm(names[i]);
-    if (
-      n.includes("produto")
-      || n.includes("nome")
-      || n.includes("name")
-      || n.includes("item")
-      || n.includes("titulo")
-    ) {
-      nameKey = names[i];
-      break;
-    }
-  }
-  if (!nameKey) {
-    const idx = types.indexOf("string");
-    if (idx >= 0) nameKey = names[idx];
-  }
-  if (!nameKey) return null;
-
-  let priceKey = "";
-  for (let i = 0; i < names.length; i++) {
-    if (types[i] !== "number") continue;
-    const n = norm(names[i]);
-    if (n.includes("quantidade") || n.includes("qty") || n.includes("qtd")) continue;
-    if (
-      n.includes("preco")
-      || n.includes("price")
-      || n === "valor"
-      || (n.includes("valor") && !n.includes("estoque") && !n.includes("stock"))
-    )
-      priceKey = names[i];
-  }
-  if (!priceKey) {
-    const nums = names.filter((_, i) => types[i] === "number");
-    if (nums.length === 1) priceKey = nums[0];
-    else if (nums.length >= 2)
-      priceKey =
-        nums.find((k) => {
-          const n = norm(k);
-          return n.includes("preco") || n.includes("price") || n.includes("valor");
-        }) || nums[0];
-  }
-  if (!priceKey) return null;
-  return { nameKey, priceKey };
-}
-
-function buildHighValuesPieRows(card: AutoCard): NestedPieHighValueRow[] | null {
-  const keys = resolveHighValuesPieKeys(card);
-  if (!keys) return null;
-  const out: NestedPieHighValueRow[] = [];
-  for (const row of card.rows) {
-    const segment = String(row[keys.nameKey] ?? "");
-    const preco = Number(row[keys.priceKey]);
-    if (!Number.isFinite(preco)) continue;
-    out.push({ segment: segment || "—", preco });
-  }
-  return out.length ? out : null;
 }
 
 /** Pizza dupla (valores mais altos): centro = soma dos preços exibidos. */
@@ -606,11 +186,6 @@ function NestedDoublePieHighValuesChart({ rows }: { rows: NestedPieHighValueRow[
   const offsetH = Math.max(chartH - margin * 2, 0);
   const maxPieR = Math.min(offsetW, offsetH) / 2;
 
-  const truncateLabel = (s: string, max = 14) => {
-    const t = String(s);
-    return t.length > max ? `${t.slice(0, max)}…` : t;
-  };
-
   const pieAngleProps = { startAngle: 90, endAngle: 450, paddingAngle: 0, minAngle: 0, isAnimationActive: false };
 
   const hole = maxPieR * 0.22;
@@ -625,76 +200,79 @@ function NestedDoublePieHighValuesChart({ rows }: { rows: NestedPieHighValueRow[
   const maxOuterLabels = 8;
 
   return (
-    <div ref={wrapRef} className="relative h-full min-h-[300px] w-full">
-      {chartW > 32 && chartH > 32 && maxPieR > 8 ? (
-        <PieChart width={chartW} height={chartH} margin={{ top: margin, right: margin, bottom: margin, left: margin }}>
-          <Tooltip
-            content={({ active, payload }) => {
-              if (!active || !payload?.[0]) return null;
-              const row = payload[0].payload as NestedPieHighValueRow;
-              const seg = row.segment ?? String(payload[0].name ?? "");
-              return (
-                <div className="rounded-md border border-border bg-background px-2 py-1.5 text-xs shadow-md">
-                  <p className="font-medium text-foreground">{seg}</p>
-                  <p className="text-muted-foreground">Preço: {money(Number(row.preco))}</p>
-                </div>
-              );
-            }}
-          />
-          <Pie
-            {...pieAngleProps}
-            data={rows}
-            dataKey="preco"
-            nameKey="segment"
-            cx="50%"
-            cy="50%"
-            innerRadius={rInnerIn}
-            outerRadius={rInnerOut}
-            labelLine={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 0.5 }}
-            label={() => ""}
-          >
-            {rows.map((_, i) => (
-              <Cell
-                key={`hv-in-${i}`}
-                fill={PIE_COLORS[i % PIE_COLORS.length]}
-                stroke="hsl(var(--background))"
-                strokeWidth={1}
-              />
-            ))}
-          </Pie>
-          <Pie
-            {...pieAngleProps}
-            data={rows}
-            dataKey="preco"
-            nameKey="segment"
-            cx="50%"
-            cy="50%"
-            innerRadius={rOuterIn}
-            outerRadius={rOuterOut}
-            labelLine={false}
-            label={(props: { payload?: NestedPieHighValueRow; index?: number }) => {
-              if ((props.index ?? 999) >= maxOuterLabels) return "";
-              const v = props.payload?.preco;
-              return v != null && Number.isFinite(Number(v)) ? money(Number(v)) : "";
-            }}
-          >
-            {rows.map((_, i) => (
-              <Cell
-                key={`hv-out-${i}`}
-                fill={PIE_COLORS[i % PIE_COLORS.length]}
-                stroke="hsl(var(--background))"
-                strokeWidth={1}
-              />
-            ))}
-          </Pie>
-        </PieChart>
-      ) : null}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex max-w-[36%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center text-center">
-        <span className="text-lg font-bold tabular-nums leading-tight text-foreground sm:text-xl">
-          {money(totalPreco)}
-        </span>
-        <span className="text-xs text-muted-foreground">soma (exibidos)</span>
+    <div className="flex h-full min-h-0 w-full flex-1 flex-col gap-2">
+      <div ref={wrapRef} className="relative min-h-[160px] w-full flex-1 overflow-hidden">
+        {chartW > 32 && chartH > 32 && maxPieR > 8 ? (
+          <PieChart width={chartW} height={chartH} margin={{ top: margin, right: margin, bottom: margin, left: margin }}>
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.[0]) return null;
+                const row = payload[0].payload as NestedPieHighValueRow;
+                const seg = row.segment ?? String(payload[0].name ?? "");
+                return (
+                  <div className="rounded-md border border-border bg-background px-2 py-1.5 text-xs shadow-md">
+                    <p className="font-medium text-foreground">{seg}</p>
+                    <p className="text-muted-foreground">Preço: {money(Number(row.preco))}</p>
+                  </div>
+                );
+              }}
+            />
+            <Pie
+              {...pieAngleProps}
+              data={rows}
+              dataKey="preco"
+              nameKey="segment"
+              cx="50%"
+              cy="50%"
+              innerRadius={rInnerIn}
+              outerRadius={rInnerOut}
+              labelLine={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 0.5 }}
+              label={() => ""}
+            >
+              {rows.map((row, i) => (
+                <Cell
+                  key={`hv-in-${i}`}
+                  fill={pieSegmentColor(String(row.segment ?? ""), i)}
+                  stroke="hsl(var(--background))"
+                  strokeWidth={1}
+                />
+              ))}
+            </Pie>
+            <Pie
+              {...pieAngleProps}
+              data={rows}
+              dataKey="preco"
+              nameKey="segment"
+              cx="50%"
+              cy="50%"
+              innerRadius={rOuterIn}
+              outerRadius={rOuterOut}
+              labelLine={false}
+              label={(props: { payload?: NestedPieHighValueRow; index?: number }) => {
+                if ((props.index ?? 999) >= maxOuterLabels) return "";
+                const v = props.payload?.preco;
+                return v != null && Number.isFinite(Number(v)) ? money(Number(v)) : "";
+              }}
+            >
+              {rows.map((row, i) => (
+                <Cell
+                  key={`hv-out-${i}`}
+                  fill={pieSegmentColor(String(row.segment ?? ""), i)}
+                  stroke="hsl(var(--background))"
+                  strokeWidth={1}
+                />
+              ))}
+            </Pie>
+          </PieChart>
+        ) : null}
+        <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex max-w-[36%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center text-center">
+          <span className="text-lg font-bold tabular-nums leading-tight text-foreground sm:text-xl">
+            {money(totalPreco)}
+          </span>
+          <span className="text-xs text-muted-foreground">soma (exibidos)</span>
+        </div>
       </div>
+      <PieSegmentsLegend segments={rows.map((r) => String(r.segment ?? ""))} />
     </div>
   );
 }
@@ -753,85 +331,88 @@ function NestedDoublePieChart({
   const rOuterOut = rOuterIn + ringW;
 
   return (
-    <div ref={wrapRef} className="relative h-full min-h-[300px] w-full">
-      {chartW > 32 && chartH > 32 && maxPieR > 8 ? (
-        <PieChart width={chartW} height={chartH} margin={{ top: margin, right: margin, bottom: margin, left: margin }}>
-          <Tooltip
-            content={({ active, payload }) => {
-              if (!active || !payload?.[0]) return null;
-              const row = payload[0].payload as NestedPieRingRow;
-              const seg = row.segment ?? String(payload[0].name ?? "");
-              return (
-                <div className="rounded-md border border-border bg-background px-2 py-1.5 text-xs shadow-md">
-                  <p className="font-medium text-foreground">{seg}</p>
-                  <p className="text-muted-foreground">
-                    Produtos: {Number(row.product_count).toLocaleString("pt-BR")}
-                  </p>
-                  <p className="text-muted-foreground">Valor estoque: {money(Number(row.stock_value))}</p>
-                </div>
-              );
-            }}
-          />
-          <Pie
-            {...pieAngleProps}
-            data={rows}
-            dataKey={innerDataKey}
-            nameKey="segment"
-            cx="50%"
-            cy="50%"
-            innerRadius={rInnerIn}
-            outerRadius={rInnerOut}
-            labelLine={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 0.5 }}
-            label={() => ""}
-          >
-            {rows.map((_, i) => (
-              <Cell
-                key={`np-in-${i}`}
-                fill={PIE_COLORS[i % PIE_COLORS.length]}
-                stroke="hsl(var(--background))"
-                strokeWidth={1}
-              />
-            ))}
-          </Pie>
-          <Pie
-            {...pieAngleProps}
-            data={rows}
-            dataKey={outerDataKey}
-            nameKey="segment"
-            cx="50%"
-            cy="50%"
-            innerRadius={rOuterIn}
-            outerRadius={rOuterOut}
-            labelLine={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 0.5 }}
-            label={
-              isBrandPie
-                ? (props: { payload?: NestedPieRingRow }) => {
-                    const n = props.payload?.product_count;
-                    return n != null && Number.isFinite(Number(n)) ? Number(n).toLocaleString("pt-BR") : "";
-                  }
-                : (props: { payload?: NestedPieRingRow }) => {
-                    const v = props.payload?.stock_value;
-                    return v != null && Number.isFinite(Number(v)) ? money(Number(v)) : "";
-                  }
-            }
-          >
-            {rows.map((_, i) => (
-              <Cell
-                key={`np-out-${i}`}
-                fill={PIE_COLORS[i % PIE_COLORS.length]}
-                stroke="hsl(var(--background))"
-                strokeWidth={1}
-              />
-            ))}
-          </Pie>
-        </PieChart>
-      ) : null}
-      <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex max-w-[28%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center text-center">
-        <span className="text-2xl font-bold tabular-nums leading-tight text-foreground">
-          {totalProdutosSum.toLocaleString("pt-BR")}
-        </span>
-        <span className="text-xs text-muted-foreground">produtos</span>
+    <div className="flex h-full min-h-0 w-full flex-1 flex-col gap-2">
+      <div ref={wrapRef} className="relative min-h-[160px] w-full flex-1 overflow-hidden">
+        {chartW > 32 && chartH > 32 && maxPieR > 8 ? (
+          <PieChart width={chartW} height={chartH} margin={{ top: margin, right: margin, bottom: margin, left: margin }}>
+            <Tooltip
+              content={({ active, payload }) => {
+                if (!active || !payload?.[0]) return null;
+                const row = payload[0].payload as NestedPieRingRow;
+                const seg = row.segment ?? String(payload[0].name ?? "");
+                return (
+                  <div className="rounded-md border border-border bg-background px-2 py-1.5 text-xs shadow-md">
+                    <p className="font-medium text-foreground">{seg}</p>
+                    <p className="text-muted-foreground">
+                      Produtos: {Number(row.product_count).toLocaleString("pt-BR")}
+                    </p>
+                    <p className="text-muted-foreground">Valor estoque: {money(Number(row.stock_value))}</p>
+                  </div>
+                );
+              }}
+            />
+            <Pie
+              {...pieAngleProps}
+              data={rows}
+              dataKey={innerDataKey}
+              nameKey="segment"
+              cx="50%"
+              cy="50%"
+              innerRadius={rInnerIn}
+              outerRadius={rInnerOut}
+              labelLine={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 0.5 }}
+              label={() => ""}
+            >
+              {rows.map((row, i) => (
+                <Cell
+                  key={`np-in-${i}`}
+                  fill={pieSegmentColor(String(row.segment ?? ""), i)}
+                  stroke="hsl(var(--background))"
+                  strokeWidth={1}
+                />
+              ))}
+            </Pie>
+            <Pie
+              {...pieAngleProps}
+              data={rows}
+              dataKey={outerDataKey}
+              nameKey="segment"
+              cx="50%"
+              cy="50%"
+              innerRadius={rOuterIn}
+              outerRadius={rOuterOut}
+              labelLine={{ stroke: "hsl(var(--muted-foreground))", strokeWidth: 0.5 }}
+              label={
+                isBrandPie
+                  ? (props: { payload?: NestedPieRingRow }) => {
+                      const n = props.payload?.product_count;
+                      return n != null && Number.isFinite(Number(n)) ? Number(n).toLocaleString("pt-BR") : "";
+                    }
+                  : (props: { payload?: NestedPieRingRow }) => {
+                      const v = props.payload?.stock_value;
+                      return v != null && Number.isFinite(Number(v)) ? money(Number(v)) : "";
+                    }
+              }
+            >
+              {rows.map((row, i) => (
+                <Cell
+                  key={`np-out-${i}`}
+                  fill={pieSegmentColor(String(row.segment ?? ""), i)}
+                  stroke="hsl(var(--background))"
+                  strokeWidth={1}
+                />
+              ))}
+            </Pie>
+          </PieChart>
+        ) : null}
+        <div className="pointer-events-none absolute left-1/2 top-1/2 z-10 flex max-w-[28%] -translate-x-1/2 -translate-y-1/2 flex-col items-center justify-center text-center">
+          <span className="text-2xl font-bold tabular-nums leading-tight text-foreground">
+            {totalProdutosSum.toLocaleString("pt-BR")}
+          </span>
+          <span className="text-xs text-muted-foreground">produtos</span>
+        </div>
       </div>
+      <PieSegmentsLegend segments={rows.map((r) => String(r.segment ?? ""))} />
     </div>
   );
 }
@@ -954,7 +535,12 @@ function AutoCardChart({ card }: { card: AutoCard }) {
               }}
               labelFormatter={() => ""}
             />
-            <Scatter name="Categorias" data={points} fill="#16a34a" />
+            <Legend
+              wrapperStyle={{ fontSize: 11, paddingTop: 4 }}
+              iconType="circle"
+              formatter={(value) => <span className="text-foreground">{value}</span>}
+            />
+            <Scatter name="Total × estoque baixo (tamanho)" data={points} fill="#16a34a" />
           </ScatterChart>
         </ResponsiveContainer>
       );
@@ -987,7 +573,12 @@ function AutoCardChart({ card }: { card: AutoCard }) {
             }}
             labelFormatter={() => ""}
           />
-          <Scatter name="Itens" data={points} fill="#6366f1" />
+          <Legend
+            wrapperStyle={{ fontSize: 11, paddingTop: 4 }}
+            iconType="circle"
+            formatter={(value) => <span className="text-foreground">{value}</span>}
+          />
+          <Scatter name="Preço × quantidade (tamanho)" data={points} fill="#6366f1" />
         </ScatterChart>
       </ResponsiveContainer>
     );
@@ -1065,14 +656,18 @@ function AutoCardChart({ card }: { card: AutoCard }) {
           />
           <Tooltip
             formatter={(value: number, name: string) =>
-              name === "stock_value" ? money(value) : Number(value).toLocaleString("pt-BR")
+              name === "stock_value" || name === "Valor em estoque (R$)" ? money(value) : Number(value).toLocaleString("pt-BR")
             }
           />
-          <Legend wrapperStyle={{ fontSize: 12 }} />
+          <Legend
+            wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
+            iconType="rect"
+            formatter={(value) => <span className="text-foreground">{value}</span>}
+          />
           <Bar
             yAxisId="count"
             dataKey="total_produtos"
-            name="product_count"
+            name="Produtos (contagem)"
             fill="#06b6d4"
             radius={[4, 4, 0, 0]}
             maxBarSize={36}
@@ -1081,7 +676,7 @@ function AutoCardChart({ card }: { card: AutoCard }) {
             yAxisId="money"
             type="monotone"
             dataKey="valor_estoque"
-            name="stock_value"
+            name="Valor em estoque (R$)"
             stroke="#6366f1"
             strokeWidth={2}
             dot={{ r: 3 }}
@@ -1118,14 +713,20 @@ function AutoCardChart({ card }: { card: AutoCard }) {
             />
             <Tooltip
               formatter={(value: number, name: string) =>
-                name === "receita_bruta" ? money(Number(value)) : Number(value).toLocaleString("pt-BR")
+                name === "receita_bruta" || name === "Receita bruta"
+                  ? money(Number(value))
+                  : Number(value).toLocaleString("pt-BR")
               }
             />
-            <Legend wrapperStyle={{ fontSize: 12 }} />
+            <Legend
+              wrapperStyle={{ fontSize: 12, paddingTop: 8 }}
+              iconType="rect"
+              formatter={(value) => <span className="text-foreground">{value}</span>}
+            />
             <Bar
               yAxisId="revenue"
               dataKey="receita_bruta"
-              name="receita_bruta"
+              name="Receita bruta"
               fill="#06b6d4"
               radius={[4, 4, 0, 0]}
               maxBarSize={36}
@@ -1134,7 +735,7 @@ function AutoCardChart({ card }: { card: AutoCard }) {
               yAxisId="sold"
               type="monotone"
               dataKey="produtos_vendidos"
-              name="produtos_vendidos"
+              name="Produtos vendidos"
               stroke="#6366f1"
               strokeWidth={2}
               dot={{ r: 3 }}
@@ -1149,8 +750,19 @@ function AutoCardChart({ card }: { card: AutoCard }) {
           <XAxis dataKey={xKey} tick={{ fontSize: 11 }} />
           <YAxis tick={{ fontSize: 11 }} />
           <Tooltip />
+          <Legend
+            wrapperStyle={{ fontSize: 11, paddingTop: 8 }}
+            iconType="square"
+            formatter={(value) => <span className="text-foreground">{value}</span>}
+          />
           {numCols.map((col, i) => (
-            <Bar key={col} dataKey={col} fill={PIE_COLORS[i % PIE_COLORS.length]} radius={[4, 4, 0, 0]} />
+            <Bar
+              key={col}
+              dataKey={col}
+              name={col}
+              fill={PIE_COLORS[i % PIE_COLORS.length]}
+              radius={[4, 4, 0, 0]}
+            />
           ))}
         </BarChart>
       </ResponsiveContainer>
@@ -1280,7 +892,7 @@ export default function MetabaseReports() {
             </Card>
           )}
           {!cardsLoading && !cardsError && gridCards.length > 0 && (
-            <div className="grid gap-4 lg:grid-cols-2">
+            <div className="grid gap-4 lg:grid-cols-3">
               {gridCards.map((card) => (
                 <Card key={`auto-${card.id}`}>
                   <CardHeader>
@@ -1298,7 +910,7 @@ export default function MetabaseReports() {
                           : card.chart_type === "nested_pie_equal_category"
                             || card.chart_type === "nested_pie_equal_brand"
                             || card.chart_type === "nested_pie_high_values"
-                          ? "min-h-[380px] h-[400px]"
+                          ? "flex h-[min(520px,calc(100vh-14rem))] min-h-[420px] max-h-[560px] flex-col overflow-hidden"
                           : "h-[300px]"
                     }
                   >
