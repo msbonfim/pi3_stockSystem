@@ -301,8 +301,10 @@ body.popup .submit-row {
   background: var(--delete-button-bg);
   border-radius: 4px;
   padding: 0.625rem 0.9375rem;
-  align-items: center;
+  /* height: 0.9375rem; */
+  line-height: 0.9375rem;
   color: var(--button-fg);
+  align-items: center;
 }
 
 .submit-row a.closelink {

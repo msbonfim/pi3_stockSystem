@@ -93,7 +93,6 @@ class AdminModernizationMiddleware(MiddlewareMixin):
                 background: #2563eb !important;
                 color: #ffffff !important;
                 border-radius: 8px !important;
-                padding: 0.75rem 1.5rem !important;
                 border: none !important;
                 box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1) !important;
                 transition: all 0.2s !important;

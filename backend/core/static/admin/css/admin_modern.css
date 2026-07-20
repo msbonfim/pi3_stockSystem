@@ -443,6 +443,17 @@ input[type="submit"]:active {
   box-shadow: var(--admin-shadow-md) !important;
 }
 
+.submit-row a.deletelink {
+  display: flex !important;
+  background: var(--delete-button-bg, #f56565) !important;
+  border-radius: 4px !important;
+  padding: 0.625rem 0.9375rem !important;
+  /* height: 0.9375rem; */
+  line-height: 0.9375rem !important;
+  color: var(--button-fg, #ffffff) !important;
+  align-items: center !important;
+}
+
 /* Formulários Compactos */
 .form-row {
   margin-bottom: 1rem;
@@ -475,7 +486,7 @@ input[type="submit"]:active {
 .form-row textarea,
 .form-row select {
   width: 100%;
-  padding: 0.5rem 0.75rem;
+  padding: 0;
   border: 1px solid var(--admin-border);
   border-radius: var(--admin-radius);
   font-size: 0.875rem;
@@ -548,6 +559,42 @@ form {
 /* Actions dentro do changelist com flex */
 #changelist .actions {
   display: flex !important;
+}
+
+#toolbar #searchbar {
+  /* height: 1.1875rem; */
+  border: 1px solid var(--border-color) !important;
+  padding: 2px 5px !important;
+  margin: 0 10px 0 10px !important;
+  vertical-align: top !important;
+  font-size: 0.8125rem !important;
+  max-width: 100% !important;
+}
+
+#changelist .actions select {
+  vertical-align: top !important;
+  /* height: 1.5rem; */
+  color: var(--body-fg) !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 4px !important;
+  font-size: 0.875rem !important;
+  padding: 0 0 0 4px !important;
+  margin: 0 10px 0 10px !important;
+  margin-left: 10px !important;
+}
+
+#changelist .actions .button {
+  font-size: 0.8125rem !important;
+  border: 1px solid var(--border-color) !important;
+  border-radius: 4px !important;
+  background: var(--body-bg) !important;
+  box-shadow: 0 -15px 20px -10px rgba(0, 0, 0, 0.15) inset !important;
+  cursor: pointer !important;
+  /* height: 1.5rem; */
+  line-height: 1 !important;
+  padding: 4px 8px !important;
+  margin: 0 !important;
+  color: var(--body-fg) !important;
 }
 
 #result_list thead th {

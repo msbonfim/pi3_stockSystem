@@ -103,6 +103,10 @@ class PushSubscriptionAdmin(admin.ModelAdmin):
     readonly_fields = ('endpoint', 'p256dh', 'auth', 'created_at')
     ordering = ('-created_at',)
     list_per_page = 20
+
+    def has_add_permission(self, request):
+        # Inscrições só são criadas pelo navegador via API
+        return False
     
     def endpoint_short(self, obj):
         return obj.endpoint[:50] + '...' if len(obj.endpoint) > 50 else obj.endpoint

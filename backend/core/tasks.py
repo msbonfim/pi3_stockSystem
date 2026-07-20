@@ -18,10 +18,10 @@ def check_expiring_products_and_notify():
     """
     import sys
     print("\n" + "="*70, file=sys.stdout, flush=True)
-    print("🔔 EXECUTANDO: check_expiring_products_and_notify", file=sys.stdout, flush=True)
+    print(" EXECUTANDO: check_expiring_products_and_notify", file=sys.stdout, flush=True)
     print("="*70, file=sys.stdout, flush=True)
     logger.info("=" * 60)
-    logger.info("🔔 EXECUTANDO: check_expiring_products_and_notify")
+    logger.info(" EXECUTANDO: check_expiring_products_and_notify")
     logger.info("=" * 60)
     today = timezone.now().date()
     
@@ -65,7 +65,7 @@ def check_expiring_products_and_notify():
     
     if not results:
         logger.info("Nenhum produto próximo da validade encontrado.")
-        return "✅ Nenhum produto próximo da validade encontrado. Tudo em ordem!"
+        return " Nenhum produto próximo da validade encontrado. Tudo em ordem!"
     
     return " | ".join(results)
 
@@ -75,10 +75,10 @@ def _send_notifications_for_products(products, severity, description, today):
     
     # Prepara mensagens em português
     if severity == "CRÍTICO":
-        title = f"⚠️ Alerta Crítico: {count} produto(s) próximo(s) da validade"
+        title = f" Alerta Crítico: {count} produto(s) próximo(s) da validade"
         push_message = f"{count} produto(s) vence(m) nos próximos 7 dias! Ação urgente necessária."
     else:
-        title = f"🔔 Aviso: {count} produto(s) próximo(s) da validade"
+        title = f" Aviso: {count} produto(s) próximo(s) da validade"
         push_message = f"{count} produto(s) vence(m) nos próximos 30 dias."
     
     message_lines = [f"Os seguintes produtos estão próximos da data de validade ({severity}):\n"]
@@ -98,13 +98,13 @@ def _send_notifications_for_products(products, severity, description, today):
         
         # Cria notificação no banco para cada produto com mensagem em português
         if days_left == 0:
-            notification_title = f"⚠️ {product.name} - Vence HOJE!"
+            notification_title = f" {product.name} - Vence HOJE!"
             notification_msg = f"ATENÇÃO! {product.name} vence hoje ({product.expiration_date.strftime('%d/%m/%Y')}). Ação imediata necessária!"
         elif days_left <= 3:
             notification_title = f"🚨 {product.name} - Vence em {days_left} dia(s)"
             notification_msg = f"{product.name} vence em {days_left} dia(s) ({product.expiration_date.strftime('%d/%m/%Y')}). Quantidade: {product.quantity}."
         else:
-            notification_title = f"📅 {product.name} - Vence em {days_left} dias"
+            notification_title = f" {product.name} - Vence em {days_left} dias"
             notification_msg = f"{product.name} vence em {days_left} dias ({product.expiration_date.strftime('%d/%m/%Y')}). Quantidade: {product.quantity}."
         
         Notification.objects.create(
@@ -129,14 +129,14 @@ def _send_notifications_for_products(products, severity, description, today):
     print(f"\n{'='*70}", file=sys.stdout, flush=True)
     print(f"🚀 ENVIANDO PUSH NOTIFICATION - Produtos Próximos da Validade", file=sys.stdout, flush=True)
     print(f"{'='*70}", file=sys.stdout, flush=True)
-    logger.info(f"📤 Chamando send_push_notification para produtos próximos da validade...")
+    logger.info(f" Chamando send_push_notification para produtos próximos da validade...")
     push_result = send_push_notification(
         title=title,
         message=push_message,
         data={"type": "expiring_products", "count": count, "severity": severity.lower()}
     )
-    print(f"✅ Push resultado: {push_result}", file=sys.stdout, flush=True)
-    logger.info(f"📤 Resultado do push: {push_result}")
+    print(f" Push resultado: {push_result}", file=sys.stdout, flush=True)
+    logger.info(f" Resultado do push: {push_result}")
     
     # Envia notificação desktop (Windows) - aparece no monitor
     # Usa urgência crítica se for alerta crítico
@@ -164,10 +164,10 @@ def _send_notifications_for_products(products, severity, description, today):
     logger.info(
         f"Notificações enviadas: {notifications_created} no banco, "
         f"Email: {email_result}, Push: {push_result.get('sent', 0)} enviados, "
-        f"Desktop: {'✅' if desktop_result.get('sent') else '❌'}"
+        f"Desktop: {'' if desktop_result.get('sent') else '❌'}"
     )
     
-    desktop_status = "✅" if desktop_result.get('sent') else "❌"
+    desktop_status = "" if desktop_result.get('sent') else "❌"
     return f"{severity}: {count} produto(s) - Email: {email_result}, Push: {push_result.get('sent', 0)} enviados, Desktop: {desktop_status}"
 
 def check_low_stock_and_notify(**kwargs):
@@ -181,10 +181,10 @@ def check_low_stock_and_notify(**kwargs):
     """
     import sys
     print("\n" + "="*70, file=sys.stdout, flush=True)
-    print("🔔 EXECUTANDO: check_low_stock_and_notify", file=sys.stdout, flush=True)
+    print(" EXECUTANDO: check_low_stock_and_notify", file=sys.stdout, flush=True)
     print("="*70, file=sys.stdout, flush=True)
     logger.info("=" * 60)
-    logger.info("🔔 EXECUTANDO: check_low_stock_and_notify")
+    logger.info(" EXECUTANDO: check_low_stock_and_notify")
     logger.info("=" * 60)
     # Obtém min_quantity dos kwargs (pode vir do schedule) ou usa padrão
     min_quantity = kwargs.get('min_quantity', 2)
@@ -198,14 +198,14 @@ def check_low_stock_and_notify(**kwargs):
     
     if not low_stock_products.exists():
         msg = f"Nenhum produto com estoque baixo encontrado (menos de {min_quantity} unidades)."
-        print(f"\n✅ {msg}")
+        print(f"\n {msg}")
         logger.info(msg)
-        return f"✅ Nenhum produto com estoque baixo encontrado. Tudo em ordem!"
+        return f" Nenhum produto com estoque baixo encontrado. Tudo em ordem!"
     
     count = low_stock_products.count()
     
     # Prepara mensagens
-    title = f"📦 Alerta: {count} produto(s) com estoque baixo"
+    title = f" Alerta: {count} produto(s) com estoque baixo"
     push_message = f"{count} produto(s) com menos de {min_quantity} unidade(s) em estoque!"
     
     message_lines = [f"Os seguintes produtos estão com estoque baixo (menos de {min_quantity} unidades):\n"]
@@ -224,13 +224,13 @@ def check_low_stock_and_notify(**kwargs):
         
         # Cria notificação no banco para cada produto
         if product.quantity == 0:
-            notification_title = f"🔴 {product.name} - Estoque zerado!"
+            notification_title = f" {product.name} - Estoque zerado!"
             notification_msg = f"ATENÇÃO! {product.name} está com estoque zerado. É necessário repor urgentemente!"
         elif product.quantity == 1:
-            notification_title = f"⚠️ {product.name} - Última unidade!"
+            notification_title = f" {product.name} - Última unidade!"
             notification_msg = f"{product.name} está com apenas 1 unidade em estoque. Reposição necessária!"
         else:
-            notification_title = f"📦 {product.name} - Estoque baixo ({product.quantity} unidades)"
+            notification_title = f" {product.name} - Estoque baixo ({product.quantity} unidades)"
             notification_msg = f"{product.name} está com apenas {product.quantity} unidade(s) em estoque. Considere repor."
         
         Notification.objects.create(
@@ -255,14 +255,14 @@ def check_low_stock_and_notify(**kwargs):
     print(f"\n{'='*70}", file=sys.stdout, flush=True)
     print(f"🚀 ENVIANDO PUSH NOTIFICATION - Estoque Baixo", file=sys.stdout, flush=True)
     print(f"{'='*70}", file=sys.stdout, flush=True)
-    logger.info(f"📤 Chamando send_push_notification para estoque baixo...")
+    logger.info(f" Chamando send_push_notification para estoque baixo...")
     push_result = send_push_notification(
         title=title,
         message=push_message,
         data={"type": "low_stock", "count": count, "min_quantity": min_quantity}
     )
-    print(f"✅ Push resultado: {push_result}", file=sys.stdout, flush=True)
-    logger.info(f"📤 Resultado do push: {push_result}")
+    print(f" Push resultado: {push_result}", file=sys.stdout, flush=True)
+    logger.info(f" Resultado do push: {push_result}")
     
     # Envia notificação desktop (Windows)
     urgency = 'critical' if any(p.quantity == 0 for p in low_stock_products) else 'normal'
@@ -288,10 +288,10 @@ def check_low_stock_and_notify(**kwargs):
     logger.info(
         f"Notificações de estoque baixo enviadas: {notifications_created} no banco, "
         f"Email: {email_result}, Push: {push_result.get('sent', 0)} enviados, "
-        f"Desktop: {'✅' if desktop_result.get('sent') else '❌'}"
+        f"Desktop: {'' if desktop_result.get('sent') else '❌'}"
     )
     
-    desktop_status = "✅" if desktop_result.get('sent') else "❌"
+    desktop_status = "" if desktop_result.get('sent') else "❌"
     return f"Estoque Baixo: {count} produto(s) - Email: {email_result}, Push: {push_result.get('sent', 0)} enviados, Desktop: {desktop_status}"
 
 
