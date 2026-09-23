@@ -9,6 +9,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import Index from "./pages/Index";
 import MetabaseReports from "./pages/MetabaseReports";
 import SalesPage from "./pages/Sales";
+import Esp32Page from "./pages/Esp32";
 import NotFound from "./pages/NotFound";
 import { pushNotificationService } from "./services/pushNotifications";
 import { AccessibilityProvider } from "./contexts/AccessibilityContext";
@@ -78,6 +79,7 @@ const App = () => {
               <Route path="/" element={<Index />} />
               <Route path="/relatorios" element={<MetabaseReports />} />
               <Route path="/vendas" element={<SalesPage />} />
+              <Route path="/esp32" element={<Esp32Page />} />
               {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
               <Route path="*" element={<NotFound />} />
             </Routes>

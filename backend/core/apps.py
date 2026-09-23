@@ -29,3 +29,11 @@ class CoreConfig(AppConfig):
             pass  # Será feito via template tag ou middleware
         except Exception:
             pass
+
+        try:
+            from .mqtt_client import should_start_mqtt_on_ready, start_background_listener
+
+            if should_start_mqtt_on_ready():
+                start_background_listener()
+        except Exception:
+            pass

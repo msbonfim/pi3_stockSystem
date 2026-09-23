@@ -3,7 +3,7 @@
 from django.contrib import admin
 from django.template.response import TemplateResponse
 from django.urls import path
-from .models import Brand, Category, Notification, Product, PushSubscription, Sale, SaleItem
+from .models import Brand, Category, Esp32Snapshot, Notification, Product, PushSubscription, Sale, SaleItem
 from import_export import resources, fields, widgets
 from import_export.admin import ImportExportModelAdmin
 from import_export.widgets import ForeignKeyWidget
@@ -93,6 +93,21 @@ class NotificationAdmin(admin.ModelAdmin):
     readonly_fields = ('created_at',)
     ordering = ('-created_at',)
     list_per_page = 20
+
+
+@admin.register(Esp32Snapshot)
+class Esp32SnapshotAdmin(admin.ModelAdmin):
+    list_display = ("id", "online", "relay_on", "weight", "last_seen", "mqtt_error")
+    readonly_fields = (
+        "online",
+        "relay_on",
+        "weight",
+        "payload",
+        "last_seen",
+        "last_command",
+        "last_command_at",
+        "mqtt_error",
+    )
 
 
 @admin.register(PushSubscription)

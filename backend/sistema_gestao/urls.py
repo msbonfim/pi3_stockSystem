@@ -33,6 +33,8 @@ def home(request):
             'analytics': '/api/dashboard/analytics/',
             'bi_summary': '/api/bi/summary/',
             'metabase_analytics': '/api/metabase/analytics/',
+            'esp32_status': '/api/esp32/status/',
+            'esp32_relay': '/api/esp32/relay/',
             'admin': '/admin/'
         }
     })

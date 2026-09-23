@@ -249,6 +249,17 @@ VAPID_CLAIMS = {
     "sub": os.environ.get('VAPID_EMAIL', "mailto:admin@stockystem.com")
 }
 
+# MQTT (HiveMQ Cloud) — o ESP32 e o Django só fazem conexão de saída
+MQTT_HOST = os.environ.get("MQTT_HOST", "").strip()
+MQTT_PORT = int(os.environ.get("MQTT_PORT", "8883") or 8883)
+MQTT_USERNAME = os.environ.get("MQTT_USERNAME", "").strip()
+MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD", "")
+MQTT_CLIENT_ID = os.environ.get("MQTT_CLIENT_ID", "stocksystem-django-prod").strip()
+MQTT_TLS = os.environ.get("MQTT_TLS", "true").lower() in ("1", "true", "yes")
+MQTT_TOPIC_CMND = os.environ.get("MQTT_TOPIC_CMND", "cmnd/estoque/relay").strip()
+MQTT_TOPIC_STATUS = os.environ.get("MQTT_TOPIC_STATUS", "stat/estoque/status").strip()
+MQTT_TOPIC_LWT = os.environ.get("MQTT_TOPIC_LWT", "stat/estoque/lwt").strip()
+
 # Security settings for production
 if not DEBUG:
     SECURE_BROWSER_XSS_FILTER = True

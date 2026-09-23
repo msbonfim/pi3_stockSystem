@@ -312,3 +312,15 @@ METABASE_CARD_IDS = {
 # Opcional: nome da collection com as 6 perguntas (auto-descoberta de IDs).
 # Exemplo: METABASE_COLLECTION_NAME=BI Estoque
 METABASE_COLLECTION_NAME = os.environ.get("METABASE_COLLECTION_NAME", "").strip()
+
+# --- MQTT (HiveMQ Cloud / Mosquitto) — ESP32 em outra rede ---
+# Host sem protocolo, ex.: xxxxx.s1.eu.hivemq.cloud
+MQTT_HOST = os.environ.get("MQTT_HOST", "").strip()
+MQTT_PORT = int(os.environ.get("MQTT_PORT", "8883") or 8883)
+MQTT_USERNAME = os.environ.get("MQTT_USERNAME", "").strip()
+MQTT_PASSWORD = os.environ.get("MQTT_PASSWORD", "")
+MQTT_CLIENT_ID = os.environ.get("MQTT_CLIENT_ID", "stocksystem-django").strip()
+MQTT_TLS = os.environ.get("MQTT_TLS", "true").lower() in ("1", "true", "yes")
+MQTT_TOPIC_CMND = os.environ.get("MQTT_TOPIC_CMND", "cmnd/estoque/relay").strip()
+MQTT_TOPIC_STATUS = os.environ.get("MQTT_TOPIC_STATUS", "stat/estoque/status").strip()
+MQTT_TOPIC_LWT = os.environ.get("MQTT_TOPIC_LWT", "stat/estoque/lwt").strip()

@@ -7,7 +7,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Link } from "react-router-dom";
-import { AlertTriangle, Calendar, Package, LogIn, Search, Filter, TrendingUp, Clock, Archive, LayoutDashboard, ShoppingCart } from "lucide-react";
+import { AlertTriangle, Calendar, Package, LogIn, Search, Filter, TrendingUp, Clock, Archive, LayoutDashboard, ShoppingCart, Cpu } from "lucide-react";
 import { cn } from "@/lib/utils";
 import { Product, CreateProductRequest } from "@/services/api";
 
@@ -178,6 +178,12 @@ export function InventoryDashboard() {
               <Link to="/vendas">
                 <ShoppingCart className="mr-2 h-4 w-4" />
                 Vendas
+              </Link>
+            </Button>
+            <Button variant="outline" asChild>
+              <Link to="/esp32">
+                <Cpu className="mr-2 h-4 w-4" />
+                ESP32
               </Link>
             </Button>
             <a href="https://pi2-stocksystem-backend.onrender.com/admin/" target="_blank" rel="noopener noreferrer">

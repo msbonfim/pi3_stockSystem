@@ -745,6 +745,36 @@ def unregister_push_subscription(request):
         return Response({'error': str(e)}, status=status.HTTP_400_BAD_REQUEST)
 
 
+@api_view(["GET"])
+def esp32_status(request):
+    """Último estado do ESP32 (MQTT). Não exige o módulo online para responder."""
+    from .mqtt_client import MqttError, get_snapshot, snapshot_to_dict, start_background_listener
+
+    try:
+        start_background_listener()
+    except MqttError:
+        pass
+    snap = get_snapshot()
+    return Response(snapshot_to_dict(snap))
+
+
+@api_view(["POST"])
+def esp32_relay(request):
+    """Publica comando de relé no HiveMQ: {"on": true|false}."""
+    from .mqtt_client import MqttError, publish_relay
+
+    if "on" not in request.data:
+        return Response({"error": "Envie {\"on\": true} ou {\"on\": false}."}, status=status.HTTP_400_BAD_REQUEST)
+    on = request.data.get("on")
+    if isinstance(on, str):
+        on = on.strip().lower() in ("1", "true", "yes", "on")
+    try:
+        result = publish_relay(bool(on))
+        return Response(result)
+    except MqttError as exc:
+        return Response({"error": str(exc)}, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+
 # Views para Schedules (Agendamentos)
 try:
     from django_q.models import Schedule

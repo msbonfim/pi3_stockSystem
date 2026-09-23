@@ -20,6 +20,8 @@ from .views import (
     mark_all_notifications_read,
     PushSubscriptionListCreateView,
     unregister_push_subscription,
+    esp32_status,
+    esp32_relay,
 )
 
 # Importa views de Schedule se disponível
@@ -62,6 +64,10 @@ urlpatterns = [
     # Push Subscriptions
     path('push-subscriptions/', PushSubscriptionListCreateView.as_view(), name='push-subscription-list-create'),
     path('push-subscriptions/unregister/', unregister_push_subscription, name='unregister-push-subscription'),
+
+    # ESP32 via MQTT (HiveMQ)
+    path('esp32/status/', esp32_status, name='esp32-status'),
+    path('esp32/relay/', esp32_relay, name='esp32-relay'),
 ]
 
 # Adiciona rotas de Schedule se disponível

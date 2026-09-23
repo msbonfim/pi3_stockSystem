@@ -144,3 +144,24 @@ class PushSubscription(models.Model):
     
     def __str__(self):
         return f"Subscription de {self.user.username if self.user else 'Anônimo'} - {self.endpoint[:50]}..."
+
+
+class Esp32Snapshot(models.Model):
+    """Último estado conhecido do ESP32 via MQTT (uma linha, pk=1)."""
+
+    online = models.BooleanField(default=False, verbose_name="Online")
+    relay_on = models.BooleanField(null=True, blank=True, verbose_name="Relé ligado")
+    weight = models.FloatField(null=True, blank=True, verbose_name="Peso")
+    payload = models.JSONField(default=dict, blank=True, verbose_name="Último payload")
+    last_seen = models.DateTimeField(null=True, blank=True, verbose_name="Última mensagem")
+    last_command = models.JSONField(null=True, blank=True, verbose_name="Último comando")
+    last_command_at = models.DateTimeField(null=True, blank=True, verbose_name="Comando em")
+    mqtt_error = models.CharField(max_length=300, blank=True, verbose_name="Erro MQTT")
+
+    class Meta:
+        verbose_name = "Estado do ESP32"
+        verbose_name_plural = "Estado do ESP32"
+
+    def __str__(self):
+        state = "online" if self.online else "offline"
+        return f"ESP32 ({state})"
